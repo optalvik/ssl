@@ -1,0 +1,119 @@
+{% extends "main.html" %}
+
+{% block tabs %}
+  {{ super() }}
+
+  <style>
+    .md-header {
+      position: initial;
+    }
+    .md-main__inner {
+      margin: 0;
+    }
+    .md-content {
+      display: none;
+    }
+    @media screen and (min-width: 60em) {
+      .md-sidebar--secondary {
+        display: none;
+      }
+    }
+    @media screen and (min-width: 76.25em) {
+      .md-sidebar--primary {
+        display: none;
+      }
+    }
+  </style>
+
+  <section class="mdx-container">
+    <div class="md-grid md-typeset">
+      <div class="mdx-hero">
+        <div class="mdx-hero__image">
+          <img src="assets/hero-bg.svg" alt="" draggable="false">
+        </div>
+        <div class="mdx-hero__content">
+          <h1>Usalda Tabalukku</h1>
+          <p>Algajasõbralik kursus <strong>sertifikaatide</strong>, <strong>HTTPS-i</strong> ja <strong>krüpteerimise</strong> kohta</p>
+          <a href="teooria/00_sissejuhatus/" class="md-button md-button--primary">
+            Alusta õppimist
+          </a>
+          <a href="laborid/" class="md-button">
+            Praktilised laborid
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features section -->
+  <section class="mdx-features">
+    <div class="md-grid md-typeset">
+      <div class="mdx-features__grid">
+        
+        <a href="teooria/01_ssl_tls_https/" class="mdx-features__item">
+          <div class="mdx-features__icon icon-blue">
+            <span class="twemoji">{% include ".icons/material/shield-lock.svg" %}</span>
+          </div>
+          <div class="mdx-features__text">
+            <h3>TLS/SSL põhitõed</h3>
+            <p>Mis vahe on SSL-il ja TLS-il? Kuidas HTTPS sind kaitseb?</p>
+          </div>
+        </a>
+
+        <a href="teooria/04_sertifikaadid/" class="mdx-features__item">
+          <div class="mdx-features__icon icon-amber">
+            <span class="twemoji">{% include ".icons/material/certificate.svg" %}</span>
+          </div>
+          <div class="mdx-features__text">
+            <h3>Sertifikaadid</h3>
+            <p>Digitaalsed passid veebilehtedele — kuidas need töötavad?</p>
+          </div>
+        </a>
+
+        <a href="teooria/03_tls_kaepigistus/" class="mdx-features__item">
+          <div class="mdx-features__icon icon-green">
+            <span class="twemoji">{% include ".icons/material/handshake.svg" %}</span>
+          </div>
+          <div class="mdx-features__text">
+            <h3>TLS käepigistus</h3>
+            <p>Kuidas brauser ja server turvaliselt kohtuvad?</p>
+          </div>
+        </a>
+
+        <a href="teooria/12_pqc/" class="mdx-features__item">
+          <div class="mdx-features__icon icon-purple">
+            <span class="twemoji">{% include ".icons/material/atom.svg" %}</span>
+          </div>
+          <div class="mdx-features__text">
+            <h3>Post-Quantum</h3>
+            <p>Kvantarvutid tulevad — kuidas krüptograafia valmistub?</p>
+          </div>
+        </a>
+
+        <a href="teooria/13_eesti_pki/" class="mdx-features__item">
+          <div class="mdx-features__icon icon-blue">
+            <span class="twemoji">{% include ".icons/material/flag.svg" %}</span>
+          </div>
+          <div class="mdx-features__text">
+            <h3>Eesti PKI</h3>
+            <p>ID-kaart, Mobiil-ID, SK ja TARA — Eesti e-riik.</p>
+          </div>
+        </a>
+
+        <a href="laborid/" class="mdx-features__item">
+          <div class="mdx-features__icon icon-red">
+            <span class="twemoji">{% include ".icons/material/flask.svg" %}</span>
+          </div>
+          <div class="mdx-features__text">
+            <h3>Laborid</h3>
+            <p>Käed-külge: loo CA, testi Vault'i, proovi PQC.</p>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
+{% block content %}{% endblock %}
+{% block footer %}{{ super() }}{% endblock %}

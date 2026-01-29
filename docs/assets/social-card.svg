@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradient background -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#512da8"/>
+      <stop offset="100%" style="stop-color:#7c4dcc"/>
+    </linearGradient>
+    
+    <!-- Glow effect -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <!-- Lock gradient -->
+    <linearGradient id="lockGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffd54f"/>
+      <stop offset="100%" style="stop-color:#f59e0b"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGrad)"/>
+  
+  <!-- Decorative circles -->
+  <circle cx="100" cy="100" r="200" fill="rgba(255,255,255,0.03)"/>
+  <circle cx="1100" cy="530" r="250" fill="rgba(255,255,255,0.03)"/>
+  <circle cx="900" cy="100" r="150" fill="rgba(255,255,255,0.03)"/>
+  
+  <!-- Chain links (trust chain) -->
+  <g stroke="rgba(255,255,255,0.2)" stroke-width="3" fill="none">
+    <!-- Left chain -->
+    <ellipse cx="200" cy="315" rx="40" ry="25" transform="rotate(-30 200 315)"/>
+    <ellipse cx="260" cy="290" rx="40" ry="25" transform="rotate(-30 260 290)"/>
+    <ellipse cx="320" cy="265" rx="40" ry="25" transform="rotate(-30 320 265)"/>
+    
+    <!-- Right chain -->
+    <ellipse cx="1000" cy="315" rx="40" ry="25" transform="rotate(30 1000 315)"/>
+    <ellipse cx="940" cy="290" rx="40" ry="25" transform="rotate(30 940 290)"/>
+    <ellipse cx="880" cy="265" rx="40" ry="25" transform="rotate(30 880 265)"/>
+  </g>
+  
+  <!-- Main padlock -->
+  <g transform="translate(600, 280)" filter="url(#glow)">
+    <!-- Lock shackle -->
+    <path d="M-50,-80 
+             L-50,-110 
+             Q-50,-160 0,-160 
+             Q50,-160 50,-110 
+             L50,-80" 
+          stroke="url(#lockGrad)" 
+          stroke-width="20" 
+          stroke-linecap="round"
+          fill="none"/>
+    
+    <!-- Lock body -->
+    <rect x="-70" y="-80" width="140" height="110" rx="15" fill="url(#lockGrad)"/>
+    
+    <!-- Keyhole -->
+    <circle cx="0" cy="-35" r="18" fill="#512da8"/>
+    <rect x="-8" y="-35" width="16" height="35" rx="4" fill="#512da8"/>
+  </g>
+  
+  <!-- Certificate badge -->
+  <g transform="translate(600, 280)">
+    <circle cx="70" cy="-120" r="25" fill="#10b981" filter="url(#glow)"/>
+    <path d="M60,-125 L68,-117 L82,-131" stroke="white" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  
+  <!-- Title -->
+  <text x="600" y="480" 
+        font-family="Inter, system-ui, sans-serif" 
+        font-size="56" 
+        font-weight="700" 
+        fill="white" 
+        text-anchor="middle">
+    Usalda Tabalukku
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="600" y="530" 
+        font-family="Inter, system-ui, sans-serif" 
+        font-size="24" 
+        fill="rgba(255,255,255,0.8)" 
+        text-anchor="middle">
+    TLS/SSL · Sertifikaadid · HTTPS · PKI
+  </text>
+  
+  <!-- Small lock icons as decoration -->
+  <g fill="rgba(255,255,255,0.1)">
+    <text x="50" y="580" font-size="40">🔒</text>
+    <text x="1110" y="80" font-size="40">🔐</text>
+  </g>
+</svg>
