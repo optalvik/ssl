@@ -1,0 +1,350 @@
+site_name: Usalda Tabalukku
+site_description: Algajasõbralik kursus TLS/SSL sertifikaatide ja HTTPS kohta — õpi kuidas internet turvalisena püsib
+site_author: Maria Talvik
+site_url: https://mashaeg.github.io/trust-the-padlock/
+
+repo_name: mashaeg/trust-the-padlock
+repo_url: https://github.com/mashaeg/trust-the-padlock
+edit_uri: edit/main/docs/
+
+# Open Graph / Social Card
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/mashaeg/trust-the-padlock
+  meta:
+    - property: og:image
+      content: https://mashaeg.github.io/trust-the-padlock/assets/social-card.svg
+    - property: og:image:width
+      content: "1200"
+    - property: og:image:height
+      content: "630"
+    - name: twitter:card
+      content: summary_large_image
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# THEME
+# ═══════════════════════════════════════════════════════════════════════════════
+theme:
+  name: material
+  custom_dir: overrides
+  language: et
+  
+  # Logo ja ikoonid
+  logo: assets/logo.svg
+  favicon: assets/favicon.png
+  icon:
+    repo: fontawesome/brands/github
+    edit: material/pencil
+    view: material/eye
+    tag:
+      default: material/tag
+      pqc: material/atom
+      lab: material/flask
+      eesti: material/flag
+  
+  # Värviskeem
+  palette:
+    # Hele režiim
+    - scheme: default
+      primary: custom
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: Lülita tumedale režiimile
+    # Tume režiim
+    - scheme: slate
+      primary: custom
+      accent: amber
+      toggle:
+        icon: material/brightness-4
+        name: Lülita heledasse režiimi
+  
+  # Fondid
+  font:
+    text: Inter
+    code: JetBrains Mono
+  
+  # Features
+  features:
+    # Navigation
+    - navigation.instant          # Instant loading (SPA-like)
+    - navigation.instant.prefetch # Prefetch links on hover
+    - navigation.instant.progress # Loading progress bar
+    - navigation.tracking         # URL updates with scroll
+    - navigation.tabs             # Top-level tabs
+    - navigation.tabs.sticky      # Tabs stay visible when scrolling
+    - navigation.sections         # Section headers in sidebar
+    - navigation.expand           # Expand all sections
+    - navigation.path             # Breadcrumbs
+    - navigation.top              # Back to top button
+    - navigation.indexes          # Section index pages
+    
+    # Table of contents
+    - toc.follow                  # TOC follows scroll
+    - toc.integrate               # TOC in sidebar
+    
+    # Search
+    - search.suggest              # Search suggestions
+    - search.highlight            # Highlight matches
+    - search.share                # Search share button
+    
+    # Header
+    - header.autohide             # Auto-hide header on scroll
+    - announce.dismiss            # Dismissable announcements
+    
+    # Content
+    - content.code.copy           # Copy button for code
+    - content.code.select         # Select code lines
+    - content.code.annotate       # Code annotations
+    - content.tabs.link           # Linked content tabs
+    - content.tooltips            # Improved tooltips
+    - content.action.edit         # Edit page link
+    - content.action.view         # View source link
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PLUGINS
+# ═══════════════════════════════════════════════════════════════════════════════
+plugins:
+  # Search
+  - search:
+      lang: en
+      separator: '[\s\-,:!=\[\]()"/]+|(?!\b)(?=[A-Z][a-z])|\.(?!\d)|&[lg]t;'
+  
+  # Tags
+  - tags
+  
+  # Social cards - disabled (needs pip install "mkdocs-material[imaging]")
+  # - social:
+  #     cards_layout_options:
+  #       background_color: "#0d9488"
+  #       color: "#ffffff"
+  
+  # Offline support
+  - offline
+  
+  # Image lightbox
+  - glightbox:
+      touchNavigation: true
+      loop: true
+      effect: zoom
+      slide_effect: slide
+      width: 100%
+      height: auto
+      zoomable: true
+      draggable: true
+  
+  # Git dates - disabled until files are committed
+  # - git-revision-date-localized:
+  #     enable_creation_date: true
+  #     type: timeago
+  #     fallback_to_build_date: true
+  #     enable_git_follow: false
+  
+  # Minify
+  - minify:
+      minify_html: true
+      minify_js: true
+      minify_css: true
+      htmlmin_opts:
+        remove_comments: true
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# MARKDOWN EXTENSIONS
+# ═══════════════════════════════════════════════════════════════════════════════
+markdown_extensions:
+  # Admonitions (callout boxes)
+  - admonition
+  - pymdownx.details
+  
+  # Code highlighting
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+      auto_title: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      auto_append:
+        - includes/abbreviations.md
+  
+  # Superfences (code blocks, mermaid)
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  
+  # Tabs
+  - pymdownx.tabbed:
+      alternate_style: true
+      combine_header_slug: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+  
+  # Emoji
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  
+  # Math (KaTeX)
+  - pymdownx.arithmatex:
+      generic: true
+  
+  # Keys (keyboard shortcuts)
+  - pymdownx.keys
+  
+  # Marks, caret, tilde
+  - pymdownx.mark        # ==highlighted==
+  - pymdownx.caret       # ^^inserted^^ and ^superscript^
+  - pymdownx.tilde       # ~~deleted~~ and ~subscript~
+  
+  # Smart symbols
+  - pymdownx.smartsymbols
+  
+  # Task lists
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  
+  # Tables
+  - tables
+  
+  # Attributes
+  - attr_list
+  - md_in_html
+  
+  # Definitions
+  - def_list
+  
+  # Footnotes
+  - footnotes
+  
+  # Abbreviations
+  - abbr
+  
+  # Table of contents
+  - toc:
+      permalink: true
+      permalink_title: Link sellele jaotisele
+      toc_depth: 3
+  
+  # Critic markup
+  - pymdownx.critic
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# EXTRA
+# ═══════════════════════════════════════════════════════════════════════════════
+extra:
+  # Announcements
+  status:
+    new: Uus!
+    deprecated: Aegunud
+  
+  # Tags
+  tags:
+    PQC: pqc
+    Labor: lab
+    Eesti: eesti
+  
+  # Social links
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/mashaeg
+      name: GitHub
+    - icon: fontawesome/brands/linkedin
+      link: https://linkedin.com/in/mariatalvik
+      name: LinkedIn
+  
+  # Consent (GDPR)
+  consent:
+    title: Küpsiste nõusolek
+    description: >-
+      Me kasutame küpsiseid, et meelde jätta sinu eelistused ja mõõta 
+      veebilehe kasutamist. Sinu nõusolekuga aitad meil sisu paremaks teha.
+    actions:
+      - accept
+      - reject
+      - manage
+  
+  # Analytics (privacy-friendly alternative)
+  analytics:
+    provider: google
+    property: !ENV GOOGLE_ANALYTICS_KEY
+    feedback:
+      title: Kas see leht oli kasulik?
+      ratings:
+        - icon: material/emoticon-happy-outline
+          name: See leht oli kasulik
+          data: 1
+          note: >-
+            Aitäh tagasiside eest!
+        - icon: material/emoticon-sad-outline
+          name: Seda lehte saaks parandada
+          data: 0
+          note: >-
+            Aitäh tagasiside eest! Aita meil sisu parandada.
+  
+  # Version warning
+  version:
+    provider: mike
+    default: latest
+  
+  # Generator notice
+  generator: false
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# EXTRA CSS & JS
+# ═══════════════════════════════════════════════════════════════════════════════
+extra_css:
+  - stylesheets/extra.css
+
+extra_javascript:
+  # KaTeX for math
+  - javascripts/katex.js
+  - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js
+  - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# COPYRIGHT & FOOTER
+# ═══════════════════════════════════════════════════════════════════════════════
+copyright: >
+  Copyright &copy; 2025 Maria Talvik — 
+  <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> —
+  <a href="#__consent">Muuda küpsiste seadeid</a>
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# NAVIGATION
+# ═══════════════════════════════════════════════════════════════════════════════
+nav:
+  - Avaleht: index.md
+  
+  - Teooria:
+    - teooria/index.md
+    - Põhitõed:
+      - Sissejuhatus: teooria/00_sissejuhatus.md
+      - SSL, TLS ja HTTPS: teooria/01_ssl_tls_https.md
+      - PKI: teooria/02_pki.md
+      - TLS käepigistus: teooria/03_tls_kaepigistus.md
+      - Sertifikaadid: teooria/04_sertifikaadid.md
+    - Haldus:
+      - Failivormingud: teooria/05_failivormingud.md
+      - Sisemised vs välised: teooria/06_sisemised_valised.md
+      - Keystore ja truststore: teooria/07_keystore_truststore.md
+      - Elutsükkel ja rotatsioon: teooria/08_elutsykkel.md
+      - Automatiseerimine: teooria/09_automatiseerimine.md
+    - Edasijõudnud:
+      - Probleemide lahendamine: teooria/10_probleemid.md
+      - Boonusteemad: teooria/11_boonusteemad.md
+      - Kvantarvutid ja PQC: teooria/12_pqc.md
+      - PKI Eestis: teooria/13_eesti_pki.md
+  
+  - Laborid:
+    - laborid/index.md
+    - "Labor 1: Veebiturve": laborid/labor_01.md
+    - "Labor 2: Detektiiv": laborid/labor_02.md
+    - "Labor 3: Vault": laborid/labor_03.md
+    - "Labor 4: PQC": laborid/labor_04.md
+  
+  - Spikker: spikker.md
+  - Sildid: tags.md
