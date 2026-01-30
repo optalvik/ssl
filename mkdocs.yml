@@ -1,10 +1,10 @@
 site_name: Usalda Tabalukku
 site_description: Algajasõbralik kursus TLS/SSL sertifikaatide ja HTTPS kohta — õpi kuidas internet turvalisena püsib
 site_author: Maria Talvik
-site_url: https://mashaeg.github.io/trust-the-padlock/
+site_url: https://mtalvik.github.io/trust-the-padlock/
 
-repo_name: mashaeg/trust-the-padlock
-repo_url: https://github.com/mashaeg/trust-the-padlock
+repo_name: mtalvik/trust-the-padlock
+repo_url: https://github.com/mtalvik/trust-the-padlock
 edit_uri: edit/main/docs/
 
 # Open Graph / Social Card
@@ -14,7 +14,7 @@ extra:
       link: https://github.com/mashaeg/trust-the-padlock
   meta:
     - property: og:image
-      content: https://mashaeg.github.io/trust-the-padlock/assets/social-card.svg
+      content: https://mtalvik.github.io/trust-the-padlock/assets/social-card.svg
     - property: og:image:width
       content: "1200"
     - property: og:image:height

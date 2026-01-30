@@ -29,15 +29,15 @@
     <div class="md-grid md-typeset">
       <div class="mdx-hero">
         <div class="mdx-hero__image">
-          <img src="assets/hero-bg.svg" alt="" draggable="false">
+          <img src="{{ 'assets/hero-bg.svg' | url }}" alt="" draggable="false">
         </div>
         <div class="mdx-hero__content">
           <h1>Usalda Tabalukku</h1>
           <p>Algajasõbralik kursus <strong>sertifikaatide</strong>, <strong>HTTPS-i</strong> ja <strong>krüpteerimise</strong> kohta</p>
-          <a href="teooria/00_sissejuhatus/" class="md-button md-button--primary">
+          <a href="{{ 'teooria/00_sissejuhatus.html' | url }}" class="md-button md-button--primary">
             Alusta õppimist
           </a>
-          <a href="laborid/" class="md-button">
+          <a href="{{ 'laborid/' | url }}" class="md-button">
             Praktilised laborid
           </a>
         </div>
@@ -45,12 +45,11 @@
     </div>
   </section>
 
-  <!-- Features section -->
   <section class="mdx-features">
     <div class="md-grid md-typeset">
       <div class="mdx-features__grid">
         
-        <a href="teooria/01_ssl_tls_https/" class="mdx-features__item">
+        <a href="{{ 'teooria/01_ssl_tls_https.html' | url }}" class="mdx-features__item">
           <div class="mdx-features__icon icon-blue">
             <span class="twemoji">{% include ".icons/material/shield-lock.svg" %}</span>
           </div>
@@ -60,7 +59,7 @@
           </div>
         </a>
 
-        <a href="teooria/04_sertifikaadid/" class="mdx-features__item">
+        <a href="{{ 'teooria/04_sertifikaadid.html' | url }}" class="mdx-features__item">
           <div class="mdx-features__icon icon-amber">
             <span class="twemoji">{% include ".icons/material/certificate.svg" %}</span>
           </div>
@@ -70,7 +69,7 @@
           </div>
         </a>
 
-        <a href="teooria/03_tls_kaepigistus/" class="mdx-features__item">
+        <a href="{{ 'teooria/03_tls_kaepigistus.html' | url }}" class="mdx-features__item">
           <div class="mdx-features__icon icon-green">
             <span class="twemoji">{% include ".icons/material/handshake.svg" %}</span>
           </div>
@@ -80,7 +79,7 @@
           </div>
         </a>
 
-        <a href="teooria/12_pqc/" class="mdx-features__item">
+        <a href="{{ 'teooria/12_pqc.html' | url }}" class="mdx-features__item">
           <div class="mdx-features__icon icon-purple">
             <span class="twemoji">{% include ".icons/material/atom.svg" %}</span>
           </div>
@@ -90,7 +89,7 @@
           </div>
         </a>
 
-        <a href="teooria/13_eesti_pki/" class="mdx-features__item">
+        <a href="{{ 'teooria/13_eesti_pki.html' | url }}" class="mdx-features__item">
           <div class="mdx-features__icon icon-blue">
             <span class="twemoji">{% include ".icons/material/flag.svg" %}</span>
           </div>
@@ -100,7 +99,7 @@
           </div>
         </a>
 
-        <a href="laborid/" class="mdx-features__item">
+        <a href="{{ 'laborid/' | url }}" class="mdx-features__item">
           <div class="mdx-features__icon icon-red">
             <span class="twemoji">{% include ".icons/material/flask.svg" %}</span>
           </div>
