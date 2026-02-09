@@ -1,136 +1,174 @@
-# Osa 11 - Boonusteemad
+---
+tags:
+  - TLS
+  - Turvalisus
+---
 
-## Minna sügavamale
+# Edasijõudnud teemad
 
-Siiani oleme käsitlenud TLS põhitõdesid — kuidas sertifikaadid töötavad, kuidas neid hallata, kuidas probleeme lahendada. Aga maailm on laiem. Siin on mõned täiendavad teemad, mis võivad kasuks tulla.
+## Ülevaade
+
+Eelmistes osades vaatasime TLS-i põhitõdesid: kuidas käepigistus töötab, mis on sertifikaadid, kuidas neid hallata. See kõik on vajalik, aga päris maailm on keerulisem. Siin vaatame teemasid, mis tulevad mängu, kui sinu süsteemid kasvavad ja turvanõuded tõusevad.
+
+```mermaid
+flowchart LR
+    TLS["TLS põhitõed<br/><i>Osad 1-10</i>"] --> ADV["Edasijõudnud"]
+    ADV --> mTLS["mTLS"]
+    ADV --> HSTS["HSTS"]
+    ADV --> CT["Certificate<br/>Transparency"]
+    ADV --> OCSP["OCSP Stapling"]
+    ADV --> LB["TLS terminatsioon"]
+    ADV --> WILD["Wildcard vs SAN"]
+    ADV --> PIN["Pinning"]
+
+    style ADV fill:#5e35b1,color:#fff
+```
+
+*Joonis 11.1. Edasijõudnud teemade ülevaade (Talvik, 2025). Loodud tehisintellekti abil.*
+
+---
 
 ## Mutual TLS (mTLS)
 
-Tavalises TLS-is autentib end ainult server. Server näitab sertifikaati, klient kontrollib, ühendus luuakse. Aga klient jääb anonüümseks — server ei tea, kes ta on.
+Tavalises TLS-is autentib end ainult server. Brauser kontrollib serveri sertifikaati, aga server ei küsi kunagi brauserilt: "Aga kes sina oled?"
 
-mTLS ehk vastastikune TLS keerab selle ümber: ka klient peab ennast tõestama. Mõlemal poolel on sertifikaat, mõlemad kontrollivad teineteist.
+mTLS[^rfc8446] keerab selle ümber — ka klient peab ennast sertifikaadiga tõestama. See on nagu turvauks, kust saavad läbi ainult need, kellel on nii pääse kui ka isikut tõendav dokument.
 
-See on kasulik mitmes olukorras. Microservice'ide vaheline suhtlus: iga teenus autentib end teisele, nii et võõrad ei saa vahelesegamiseks. Zero-trust võrgud: ära usalda kedagi automaatselt, nõua kõigilt tõestust. API-d, kus turvalisus on kriitiline: pangad, tervishoid, valitsusasutused.
+```mermaid
+sequenceDiagram
+    participant K as Klient
+    participant S as Server
 
-Konfigureerimine tähendab seda, et serveril pead määrama CA, mille sertifikaate klientidelt aktsepteerid:
+    S->>K: Serveri sertifikaat
+    K->>K: Kontrollib serverit
+    K->>S: Kliendi sertifikaat
+    S->>S: Kontrollib klienti
+    Note over K,S: Mõlemad tõestatud ✓
+```
+
+*Joonis 11.2. mTLS vastastikune autentimine (Talvik, 2025). Loodud tehisintellekti abil.*
+
+**Kasutuskohad:** microservice'ide vaheline suhtlus, zero-trust võrgud, kriitilised API-d (pangad, tervishoid). Eestis on ID-kaardiga autentimine sisuliselt mTLS — brauser saadab serverile oma sertifikaadi ja tõestab privaatvõtme olemasolu.
 
 ```nginx
-# Nginx mTLS
+# Nginx mTLS konfiguratsioon
 ssl_client_certificate /etc/ssl/ca.crt;
 ssl_verify_client on;
 ```
-
-Kliendil pead määrama sertifikaadi, mida kasutada:
 
 ```bash
 # curl koos kliendi sertifikaadiga
 curl --cert klient.crt --key klient.key https://server/
 ```
 
-mTLS komplitseerib sertifikaatide haldust — sertifikaate on rohkem, kõik peavad olema kehtivad. Aga turvalisus on märkimisväärselt parem.
+---
 
 ## HTTP Strict Transport Security (HSTS)
 
-Oled ehk märganud, et mõnikord saad veebisaidile ka ilma https:// sisestamata. Brauser lihtsalt suunab sind HTTPS-ile. Kuidas ta teab, et peab seda tegema?
+Kujuta ette, et kasutaja trükib brauseri aadressiribale `minusait.ee`. Brauser proovib kõigepealt HTTP-d — tavateksti, mida igaüks saab lugeda. Alles siis suunatakse HTTPS-ile. See lühike hetk on haavatav: ründaja samas WiFi-võrgus saab selle tavateksti päringus kinni püüda ja suunata kasutaja enda serverisse.
 
-Üks võimalus on HSTS. Server saadab päise:
+HSTS[^hsts] lahendab selle. Server saadab päise, mis ütleb brauserile: "Ära ürita selle domeeniga kunagi HTTP-d. Alati ainult HTTPS."
 
 ```
 Strict-Transport-Security: max-age=31536000; includeSubDomains
 ```
 
-See ütleb brauserile: järgmise aasta jooksul ühenda selle saidiga alati ainult HTTPS-iga. Ära isegi ürita HTTP-d.
+Pärast esimest külastust brauser enam HTTP-d ei proovigi — ta läheb otse HTTPS-ile. See kaitseb **downgrade rünnakute** eest.
 
-See kaitseb downgrade rünnakute eest. Ründaja ei saa sind HTTP-le suunata ja siis liiklust pealt kuulata, sest brauser keeldub HTTP-d kasutamast.
+**HSTS preload** läheb sammu kaugemale — sinu domeen lisatakse brauseritesse sisseehitatud nimekirja, nii et isegi esimene külastus on kaitstud. Brauser ei ürita kunagi HTTP-d: [hstspreload.org](https://hstspreload.org/)
 
-Veel parem: HSTS preload. Saad oma domeeni lisada brauseritesse sisse ehitatud nimekirja. Siis ei pea brauser isegi korra HTTP-ga ühenduma, et HSTS päist saada — ta teab juba ette.
+---
 
-## Certificate Transparency
+## Certificate Transparency (CT)
 
-Mis siis, kui CA väljastab sertifikaadi ilma sinu loata? See on juhtunud. CA-d on häkitud, CA töötajad on altkäemaksu võtnud, valitsused on sundinud CA-sid vale sertifikaate väljastama.
+Mis juhtub, kui CA väljastab sinu domeenile sertifikaadi ilma sinu teadmata? Ehk CA häkiti, ehk töötaja tegi vea, ehk valitsus sundis. Tulemuseks on kehtiv sertifikaat, mida ükski brauser kahtluse alla ei sea — aga see pole sinu oma.
 
-Certificate Transparency (CT) on lahendus. Iga väljastatud sertifikaat logitakse avalikesse logidesse. Igaüks saab neid logisid kontrollida. Kui keegi väljastab sertifikaadi sinu domeenile, näed sa seda logist.
-
-Brauserid nõuavad nüüd, et sertifikaadid oleksid CT logides. Sertifikaadiga tuleb kaasa SCT (Signed Certificate Timestamp), mis tõestab, et ta on logitud.
-
-Sa saad monitoorida oma domeene:
+CT[^ct] lahendab selle, logides iga väljastatud sertifikaadi avalikesse logidesse. Need logid on kõigile nähtavad ja kontrollitavad. Brauserid nõuavad CT logimist — sertifikaadiga tuleb kaasa SCT (Signed Certificate Timestamp), mis tõestab, et sertifikaat on logitud.
 
 ```bash
-# Otsi sertifikaate crt.sh-st
-curl "https://crt.sh/?q=minusait.ee&output=json" | jq
+# Monitoori oma domeeni sertifikaate
+curl "https://crt.sh/?q=minusait.ee&output=json" | jq '.[0:5]'
 ```
 
-Kui näed sertifikaati, mida sina ei taotlenud, on probleem. Teavita CA-d, uuri, reageeri.
+Kui näed sertifikaati, mida sina ei taotlenud — see on tõsine ohumärk ja vajab kohest uurimist.
+
+---
 
 ## OCSP Stapling
 
-Kuidas brauser teab, kas sertifikaat on tühistatud? Traditsiooniliselt küsib ta CA-lt OCSP vastust — "Kas see sertifikaat on veel kehtiv?"
+Traditsiooniliselt küsib brauser iga TLS ühenduse ajal CA-lt: "Kas see sertifikaat on veel kehtiv?" See on OCSP (Online Certificate Status Protocol) päring. Probleem on kahekordne: see lisab latentsust (üks lisa-päring enne lehe laadimist) ja annab CA-le infot sinu surfamisharjumustest, sest CA näeb, milliseid saite sa külastad.
 
-Probleem: see lisab latentsust ja annab CA-le infot sinu surfamisharjumuste kohta.
-
-OCSP stapling lahendab selle. Server ise küsib perioodiliselt OCSP vastuse ja "klammerdab" selle sertifikaadi külge. Brauser saab värske kinnituse otse serverilt, ilma CA-ga rääkimata.
+**OCSP stapling** lahendab mõlemad probleemid. Server küsib ise perioodiliselt CA-lt OCSP vastuse ja "klammerdab" selle TLS käepigistuse ajal sertifikaadi külge. Brauser saab värske tõendi, et sertifikaat kehtib, ilma et peaks ise CA-ga rääkima.
 
 ```nginx
-# Nginx OCSP stapling
 ssl_stapling on;
 ssl_stapling_verify on;
 resolver 8.8.8.8;
 ```
 
-## TLS terminatsioon ja passthrough
+---
 
-Suurtes keskkondades on tihti load balancerid rakenduste ees. Küsimus: kus TLS lõppeb?
+## TLS terminatsioon
 
-TLS terminatsioon load balanceris: kliendid ühenduvad turvalise ühendusega load balanceriga, load balancer dekrüpteerib ja edastab tavalise HTTP-ga backend serveritele. Lihtne seadistada, backend serverid ei pea TLS-i tegelema, aga liiklus load balanceri ja backendi vahel on krüpteerimata.
+Suurtes keskkondades on rakenduste ees load balancerid, mis jagavad liiklust. Küsimus on: kus TLS ühendus lõpeb? Sellel on kolm vastust, igaühel omad plussid ja miinused.
 
-TLS passthrough: load balancer ei dekrüpteeri, ta lihtsalt suunab krüpteeritud liikluse backend serverile. Backend peab ise TLS-i tegema. Turvalisem, aga keerulisem.
+| Variant | Kuidas töötab | Pluss | Miinus |
+|---------|--------------|-------|--------|
+| **Terminatsioon** | LB dekrüpteerib, edastab HTTP-d backendile | Lihtne, backend ei tegele TLS-iga | LB↔backend krüpteerimata |
+| **Passthrough** | LB suunab krüpteeritud liikluse otse | Turvalisem | Backend peab TLS-i tegema |
+| **Re-encryption** | LB termineerib, loob uue TLS backendiga | Parim mõlemast | Kõige keerulisem |
 
-Re-encryption: load balancer termineerib kliendi TLS-i, siis loob uue TLS-ühenduse backendiga. Parim mõlemast maailmast, aga kõige keerulisem.
+*Tabel 11.1. TLS terminatsiooni variandid*
+
+Enamikes tootmiskeskkondades kasutatakse terminatsiooni või re-encryption'i. Passthrough on lihtsaim, aga ei võimalda load balanceril liiklust inspekteerida ega marsruutida HTTP sisu põhjal.
+
+---
 
 ## Wildcard vs SAN sertifikaadid
 
-Kui sul on palju alamdomeene, on kaks võimalust.
+Kui sul on mitu alamdomeeni — www, api, mail, admin — kas teha igaühele oma sertifikaat või kasutada ühte, mis katab kõik? Kaks valikut:
 
-Wildcard sertifikaat (*.minusait.ee) katab kõik ühetasemelised alamdomeenid: www.minusait.ee, api.minusait.ee, admin.minusait.ee. Ta ei kata mitmetasemelisi (test.api.minusait.ee) ega põhidomeeni (minusait.ee ilma alamdomeenita).
+| Omadus | Wildcard (`*.minusait.ee`) | SAN |
+|--------|---------------------------|-----|
+| Katab | Kõik ühetasemelised alamdomeenid | Konkreetsed loetletud nimed |
+| Ei kata | Mitmetasemelisi (`test.api.minusait.ee`) | Mitte-loetletud nimesid |
+| Haldus | Mugavam, üks sertifikaat | Täpsem kontroll |
+| Lekke risk | Suurem (katab kõiki alamdomeene) | Väiksem (ainult loetletud) |
 
-SAN (Subject Alternative Name) sertifikaat loetleb konkreetsed nimed: minusait.ee, www.minusait.ee, api.minusait.ee. Sa saad lisada ka teisi domeene (teineleht.ee).
+*Tabel 11.2. Wildcard ja SAN sertifikaatide võrdlus*
 
-Wildcard on mugavam, kui alamdomeene on palju ja nad muutuvad tihti. SAN on täpsem — sa tead täpselt, mis kaetud on. Mõned organisatsioonid eelistavad SAN-i turvakaalutlustel: kui wildcard sertifikaat lekib, katab see kõiki võimalikke alamdomeene, mitte ainult olemasolevaid.
+Praktikas on SAN sertifikaadid turvalisemad, sest võtmelekke korral on kahjuala väiksem. Wildcard on mugavam, kui alamdomeene lisandub pidevalt ja sa ei taha iga kord sertifikaati uuendada.
 
-## Oma CA loomine
-
-Kui tahad sisemist CA-d, on OpenSSL-iga võimalik alustada:
-
-```bash
-# Genereeri CA võti
-openssl genrsa -out ca.key 4096
-
-# Loo CA sertifikaat
-openssl req -x509 -new -nodes -key ca.key -sha256 -days 3650 \
-    -out ca.crt -subj "/CN=Minu Sisemine CA"
-
-# Genereeri serveri võti
-openssl genrsa -out server.key 2048
-
-# Loo CSR
-openssl req -new -key server.key -out server.csr \
-    -subj "/CN=server.sisemine.ee"
-
-# Allkirjasta CA-ga
-openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key \
-    -CAcreateserial -out server.crt -days 365 -sha256
-```
-
-See on alus. Päris CA jaoks tahad kahekihilist struktuuri (juur + vahe), automaatset väljastamist, tühistamist, logimist. Siin tulevad mängu Vault, Smallstep ja teised tööriistad.
+---
 
 ## Sertifikaadi kinnitamine (pinning)
 
-Mõnikord tahad usaldada ainult konkreetset sertifikaati, mitte kõiki, mida CA võiks väljastada. See on pinning.
+Pinning tähendab, et rakendus usaldab ainult konkreetset sertifikaati või avalikku võtit, mitte kõiki CA allkirjastatuid. See kaitseb olukorra eest, kus ründaja saab usaldatud CA-lt vale sertifikaadi — tavaliselt läheks see brauserist läbi, aga pinning peatab selle.
 
-Rakendus teab ette, milline sertifikaat (või milline avalik võti) peab olema. Kui server saadab midagi muud, keeldub rakendus ühendumast.
+**Miinus:** sertifikaadi uuendamisel tuleb rakendust uuendada. Kui pin aegub ja rakendust pole uuendatud, lakkab rakendus töötamast. See risk on nii suur, et veebibrauserites on pinning'ust loobutud — selle asemel kasutatakse Certificate Transparency-t.[^ristic]
 
-See kaitseb olukorra vastu, kus ründaja saab kätte vale sertifikaadi usaldatud CA-lt. Aga see teeb sertifikaatide uuendamise keeruliseks — pead rakendust uuendama enne sertifikaadi uuendamist.
+Mobiilirakendustes on pinning endiselt levinud, eriti pangarakendustes ja muudes kõrge turvatasemega äppides.
 
-Mobiilirakendustes on pinning levinud. Veebibrauserites on sellest pigem loobutud (liiga palju probleeme tekitas), asendatud Certificate Transparency-ga.
+---
 
-Järgmises osas vaatame tulevikku — kuidas kvantarvutid mõjutavad krüptograafiat ja mis on post-quantum cryptography.
+## Kokkuvõte
+
+Need teemad pole igapäevased — enamiku veebilehtede jaoks piisab tavalisest TLS-ist koos Let's Encrypt sertifikaadiga. Aga kui sinu süsteemid kasvavad, turvanõuded tõusevad või vajad microservice'ide vahelist usaldust, tulevad need teemad mängu.
+
+---
+
+## Enesekontroll
+
+??? question "1. Mis on mTLS ja millal seda kasutada?"
+    Mutual TLS — mõlemad pooled (server JA klient) tõestavad oma identiteeti sertifikaadiga. Kasutatakse microservice'ide vahel, zero-trust võrkudes ja kriitiliste API-de puhul (pangad, tervishoid).
+
+??? question "2. Mis on HSTS ja millise rünnaku eest see kaitseb?"
+    HSTS (HTTP Strict Transport Security) ütleb brauserile, et ühendugu selle saidiga alati ainult HTTPS-iga. Kaitseb downgrade rünnakute eest, kus ründaja suunab kasutaja HTTP-le ja kuulab liiklust pealt.
+
+??? question "3. Mis on Certificate Transparency ja miks see vajalik on?"
+    CT on süsteem, kus iga väljastatud sertifikaat logitakse avalikesse logidesse. Võimaldab avastada volitamata väljastatud sertifikaate. Brauserid nõuavad CT logimist. Monitoorida saab crt.sh kaudu.
+
+[^rfc8446]: Rescorla, E. (2018). *The Transport Layer Security (TLS) Protocol Version 1.3*. RFC 8446. https://datatracker.ietf.org/doc/html/rfc8446
+[^ct]: Laurie, B. et al. (2013). *Certificate Transparency*. RFC 6962. https://datatracker.ietf.org/doc/html/rfc6962
+[^hsts]: Hodges, J. et al. (2012). *HTTP Strict Transport Security (HSTS)*. RFC 6797. https://datatracker.ietf.org/doc/html/rfc6797
+[^ristic]: Ristić, I. (2022). *Bulletproof TLS and PKI*. Feisty Duck. https://www.feistyduck.com/books/bulletproof-tls-and-pki/

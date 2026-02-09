@@ -1,12 +1,23 @@
-# Osa 7 - Keystore ja truststore
+---
+tags:
+  - Sertifikaadid
+  - Turvalisus
+---
+
+# Keystore ja truststore
+
+<figure markdown="span">
+  ![Keystore ja truststore](../assets/keystore_trustore.png)
+  <figcaption>Joonis 7.1. Keystore ja truststore rollid TLS ühenduses (Talvik, 2025). Loodud tehisintellekti abil.</figcaption>
+</figure>
 
 ## Kaks erinevat asja
 
-Java maailmas — ja see levib ka mujale — räägitakse pidevalt kahest asjast: keystore ja truststore. Alguses tundub, et need on sama asi erinevate nimedega. Nad näevad välja sarnased, nad on sageli samas failivormingus, neid hallatakse sama tööriistaga. Aga neil on fundamentaalselt erinev roll.
+Java maailmas - ja see levib ka mujale - räägitakse pidevalt kahest asjast: keystore ja truststore. Alguses tundub, et need on sama asi erinevate nimedega. Nad näevad välja sarnased, nad on sageli samas failivormingus, neid hallatakse sama tööriistaga. Aga neil on fundamentaalselt erinev roll.
 
-Keystore hoiab sinu identiteeti. Seal on sinu privaatvõti ja sinu sertifikaat. See on nagu rahakott, kus hoiad oma isikutunnistust ja võtmeid.
+Keystore hoiab sinu identiteeti.[^ristic] Seal on sinu privaatvõti ja sinu sertifikaat. See on nagu rahakott, kus hoiad oma isikutunnistust ja võtmeid.
 
-Truststore hoiab teiste identiteete. Seal on CA sertifikaadid — need, keda sa usaldad. See on nagu nimekiri usaldusväärsetest asutustest, kelle väljastatud dokumente sa aktsepteerid.
+Truststore hoiab teiste identiteete. Seal on CA sertifikaadid - need, keda sa usaldad. See on nagu nimekiri usaldusväärsetest asutustest, kelle väljastatud dokumente sa aktsepteerid.
 
 Kui server alustab TLS ühendust, võtab ta keystorest oma sertifikaadi ja näitab seda klientidele. Kui klient saab sertifikaadi, kontrollib ta truststorest, kas allkirjastanud CA on usaldatud.
 
@@ -14,15 +25,15 @@ Kui server alustab TLS ühendust, võtab ta keystorest oma sertifikaadi ja näit
 
 Praktiline põhjus: neil on erinevad turvanõuded.
 
-Keystore sisaldab privaatvõtit — see on ülitundlik. Kui keegi saab sinu privaatvõtme, saab ta esineda sinuna. Keystorei peab hoidma turvaliselt, piiratud ligipääsuga, võimalusel parooliga kaitstult.
+Keystore sisaldab privaatvõtit - see on ülitundlik. Kui keegi saab sinu privaatvõtme, saab ta esineda sinuna. Keystorei peab hoidma turvaliselt, piiratud ligipääsuga, võimalusel parooliga kaitstult.
 
-Truststore sisaldab ainult avalikke sertifikaate. Need pole salajased — CA sertifikaadid on avalikult kättesaadavad. Truststore peab olema ajakohane, aga see pole nii kriitiline turvaoht kui keystore.
+Truststore sisaldab ainult avalikke sertifikaate. Need pole salajased - CA sertifikaadid on avalikult kättesaadavad. Truststore peab olema ajakohane, aga see pole nii kriitiline turvaoht kui keystore.
 
 Mõnikord tahad neid eraldi hallata. Näiteks üks meeskond haldab serverite identiteete (keystoored), teine meeskond haldab, milliseid CA-sid usaldatakse (truststoored). Eraldi failid teevad selle lihtsamaks.
 
 ## Java vaikimisi truststore
 
-Java tuleb kaasa vaikimisi truststorega nimega cacerts. See asub kusagil Java installi sees, tavaliselt $JAVA_HOME/lib/security/cacerts. Seal on eelinstallitud kõik suured avalikud CA-d — samad, mida brauserid usaldavad.
+Java tuleb kaasa vaikimisi truststorega nimega cacerts.[^keytool] See asub kusagil Java installi sees, tavaliselt $JAVA_HOME/lib/security/cacerts. Seal on eelinstallitud kõik suured avalikud CA-d - samad, mida brauserid usaldavad.
 
 See tähendab, et Java rakendused usaldavad vaikimisi kõiki avalikke veebisaite. Kui ühendud https://google.com-iga, töötab see kohe, sest Google'i sertifikaadi allkirjastanud CA on cacerts failis olemas.
 
@@ -78,7 +89,7 @@ server:
 
 Kuigi terminid tulevad Java-st, kasutavad sarnast kontseptsiooni ka teised süsteemid.
 
-Nginx ja Apache ei kasuta keystoori — nad võtavad sertifikaadi ja võtme otse failidest. Aga truststorei kontseptsioon on olemas: sa määrad CA sertifikaadi, mida klientide verifitseerimiseks kasutada.
+Nginx ja Apache ei kasuta keystoori - nad võtavad sertifikaadi ja võtme otse failidest. Aga truststorei kontseptsioon on olemas: sa määrad CA sertifikaadi, mida klientide verifitseerimiseks kasutada.
 
 Elasticsearch, Kafka, MongoDB ja paljud teised kasutavad sarnast mudelit. Konfiguratsioon näeb välja midagi sellist:
 
@@ -87,7 +98,7 @@ xpack.security.transport.ssl.keystore.path: elastic.p12
 xpack.security.transport.ssl.truststore.path: ca.p12
 ```
 
-Mõned süsteemid eelistavad eraldi PEM-faile JKS/P12 failide asemel. Lõpptulemus on sama — kusagil on sinu identiteet, kusagil on nimekiri usaldatavatest.
+Mõned süsteemid eelistavad eraldi PEM-faile JKS/P12 failide asemel. Lõpptulemus on sama - kusagil on sinu identiteet, kusagil on nimekiri usaldatavatest.
 
 ## Levinud vead
 
@@ -109,7 +120,7 @@ Kui TLS ühendused ebaõnnestuvad, on Java debug-režiim suureks abiks:
 
 See prindib konsooli kõik TLS käepigistuse detailid: milliseid sertifikaate saadeti, milliseid CA-sid usaldati, kus täpselt ühendus katkes.
 
-Teine kasulik tööriist on openssl s_client:
+Teine kasulik tööriist on openssl s_client:[^openssl]
 
 ```bash
 openssl s_client -connect server:443 -showcerts
@@ -117,4 +128,27 @@ openssl s_client -connect server:443 -showcerts
 
 See näitab, millise sertifikaadi server saadab ja kas usaldusahel on terve.
 
-Järgmises osas räägime sertifikaatide elukaarist — kuidas neid luuakse, uuendatakse ja tühistatakse.
+Järgmises osas räägime sertifikaatide elukaarist - kuidas neid luuakse, uuendatakse ja tühistatakse.
+
+---
+
+## Kokkuvõte
+
+Keystore hoiab sinu identiteeti (privaatvõti + sertifikaat), truststore hoiab usaldatavate CA-de sertifikaate. Java cacerts on vaikimisi truststore. Keystorel on rangemad turvanõuded. Väljaspool Javat kasutatakse samu kontseptsioone — lihtsalt eraldi PEM-failidena.
+
+---
+
+## Enesekontroll
+
+??? question "1. Mis vahe on keystorel ja truststorel?"
+    Keystore hoiab sinu privaatvõtit ja sertifikaati (sinu identiteet). Truststore hoiab CA sertifikaate (keda sa usaldad). Keystorel on rangemad turvanõuded, sest see sisaldab privaatvõtit.
+
+??? question "2. Mis on Java cacerts ja mis on selle vaikeparool?"
+    cacerts on Java vaikimisi truststore, mis sisaldab eelinstallitud avalikke CA sertifikaate. Asub $JAVA_HOME/lib/security/cacerts. Vaikeparool on "changeit".
+
+??? question "3. Kuidas debugida TLS ühenduse probleeme Java rakenduses?"
+    Lisa käivitusparameeter `-Djavax.net.debug=ssl,handshake` - see prindib konsooli kõik TLS käepigistuse detailid. Väljaspool Javat saab kasutada `openssl s_client -connect server:443 -showcerts`.
+
+[^keytool]: Oracle. *Java Keytool Documentation*. https://docs.oracle.com/en/java/javase/21/docs/specs/man/keytool.html
+[^openssl]: OpenSSL Project. *OpenSSL dokumentatsioon*. https://www.openssl.org/docs/
+[^ristic]: Ristić, I. (2022). *Bulletproof TLS and PKI*. Feisty Duck. https://www.feistyduck.com/books/bulletproof-tls-and-pki/

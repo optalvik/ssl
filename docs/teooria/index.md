@@ -1,9 +1,9 @@
 ---
-title: Teooria
+title: Õppematerjalid
 description: Kõik teoreetilised materjalid SSL/TLS ja PKI kohta
 ---
 
-# Teooria
+# Õppematerjalid
 
 Kursuse teoreetiline osa koosneb 14 peatükist, mis viivad sind algajast edasijõudnuks.
 
@@ -41,20 +41,3 @@ Kursuse teoreetiline osa koosneb 14 peatükist, mis viivad sind algajast edasij�
 | [11](11_boonusteemad.md) | Boonusteemad | mTLS, HSTS, CT, pinning |
 | [12](12_pqc.md) | Post-Quantum | Kvantarvutid ja PQC |
 | [13](13_eesti_pki.md) | Eesti PKI | ID-kaart, Mobiil-ID, SK, TARA |
-
----
-
-```mermaid
-flowchart LR
-    subgraph Põhitõed
-        A[00] --> B[01] --> C[02] --> D[03] --> E[04]
-    end
-    
-    subgraph Haldus
-        E --> F[05] --> G[06] --> H[07] --> I[08] --> J[09]
-    end
-    
-    subgraph Edasijõudnud
-        J --> K[10] --> L[11] --> M[12] --> N[13]
-    end
-```

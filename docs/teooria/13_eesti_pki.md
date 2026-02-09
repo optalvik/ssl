@@ -1,147 +1,165 @@
-# Osa 13 - PKI Eestis: ID-kaart, Mobiil-ID ja SK
+---
+tags:
+  - Eesti
+  - PKI
+---
 
-## Eesti kui digitaalne eeskuju
+# PKI Eestis: ID-kaart, Mobiil-ID ja SK
 
-Eesti on üks maailma kõige digitaalsemaid riike. E-valimised, e-residentsus, digiretseptid, e-maksuamet — kõik see töötab sertifikaatide ja digitaalallkirjade peal. Kui sa oled Eestis ja kasutad ID-kaarti pangaga ühendumiseks või dokumendi allkirjastamiseks, kasutad sa täpselt seda PKI süsteemi, millest see kursus räägib.
+## Eesti digitaalne identiteet
 
-Aga kes on need CA-d, keda Eesti usaldab? Kuidas ID-kaardi sertifikaat sinu seadmesse jõuab? Ja miks mõni välismaine teenus Eesti ID-kaarti ei tunnista?
+Eesti on üks maailma kõige digitaalsemaid riike. E-valimised, e-residentsus, digiretseptid - kõik see töötab sertifikaatide ja digitaalallkirjade peal.[^idee] See on täpselt sama PKI süsteem, millest kogu see kursus räägib.
 
-## SK ID Solutions — Eesti sertifitseerimiskeskus
+## Eesti PKI ülesehitus
 
-Eesti PKI selgroog on SK ID Solutions (varem tuntud kui AS Sertifitseerimiskeskus). See on eraettevõte, mis väljastab sertifikaate ID-kaartidele, Mobiil-ID-le ja Smart-ID-le.
+```mermaid
+flowchart TD
+    ROOT["EE Certification Centre Root CA<br/><i>Juur-CA, hoitakse offline</i>"]
+    ROOT --> ESTEID["ESTEID-SK / ESTEID2018<br/><i>ID-kaardi sertifikaadid</i>"]
+    ROOT --> MID["MID-SK<br/><i>Mobiil-ID sertifikaadid</i>"]
+    ROOT --> SMART["Smart-ID CA<br/><i>Smart-ID sertifikaadid</i>"]
+    ROOT --> NQ["NQ-SK<br/><i>Ajatemplid</i>"]
 
-SK ei ole riigiga lihtne. See on erasektori ettevõte, mida omavad Eesti pangad ja telekommunikatsiooniettevõtted. Aga riik usaldab SK-d — SK juursertifikaadid on Eesti riigi usaldusnimekirjas ja enamiku Euroopa riikide süsteemides tunnustatud.
+    SK["SK ID Solutions<br/><i>Erasektori CA</i>"] -.->|haldab| ROOT
 
-SK haldab mitut CA-d:
+    style ROOT fill:#5e35b1,color:#fff
+    style SK fill:#ff9100,color:#fff
+```
 
-**EE Certification Centre Root CA** — juur-CA, millele kõik muu toetub. Selle võtit hoitakse üliturvaliselt, offline.
+*Joonis 13.1. Eesti PKI hierarhia ja SK ID Solutions*
 
-**ESTEID-SK** — see CA väljastab sertifikaate ID-kaartidele. Iga ID-kaart sisaldab kahte sertifikaati: üks autentimiseks, teine digitaalallkirjastamiseks.
+**SK ID Solutions**[^sk] on Eesti PKI selgroog - erasektori sertifitseerimisasutus, mille juursertifikaadid on tunnustatud Eesti riigi ja enamiku Euroopa riikide süsteemides.
 
-**ESTEID2018** — uuem versioon ID-kaardi sertifikaatidest.
+## ID-kaardi sertifikaadid
 
-**MID-SK** — Mobiil-ID sertifikaadid.
+Iga Eesti ID-kaart sisaldab kahte sertifikaati:
 
-**NQ-SK** — kvalifitseeritud ajatemplite teenus.
+| Sertifikaat | Kasutus | PIN |
+|-------------|---------|-----|
+| **Autentimine** | Isiku tõestamine (sisselogimine) | PIN1 |
+| **Allkirjastamine** | Digitaalallkiri (DigiDoc) | PIN2 |
 
-## ID-kaart ja selle sertifikaadid
+*Tabel 13.1. ID-kaardi sertifikaadid*
 
-Eesti ID-kaart on rohkem kui plastikaart nimega. See on krüptograafiline seade, mis sisaldab:
-
-**Autentimissertifikaat** — seda kasutatakse sinu isiku tõestamiseks. Kui sa logid sisse pangakontole ID-kaardiga, näitab sinu kaart seda sertifikaati pangale. Pank kontrollib, kas sertifikaat on kehtiv ja kas SK on selle allkirjastanud. Kui jah, siis pank teab, et sa oled sina.
-
-**Allkirjastamissertifikaat** — seda kasutatakse digitaalallkirjastamiseks. Kui sa allkirjastad lepingut DigiDoc-is, kasutab tarkvara seda sertifikaati. Allkiri on matemaatiliselt seotud sinu privaatvõtmega, mis on kaardil ja ei lahku sealt kunagi.
-
-Mõlemad sertifikaadid on seotud sinu isikukoodiga. Sertifikaadis on kirjas sinu nimi, isikukood ja kehtivusaeg. Aga privaatvõti on ainult kaardi kiibis — seda ei saa välja lugeda.
-
-PIN-koodid kaitsevad neid sertifikaate. PIN1 on autentimiseks, PIN2 on allkirjastamiseks. Kui keegi saab sinu kaardi, aga ei tea PIN-koode, ei saa ta sinu nimel midagi teha.
+Privaatvõtmed on kaardi kiibis ja ei lahku sealt kunagi. Sertifikaadis on kirjas nimi, isikukood ja kehtivusaeg.
 
 ## Kuidas ID-kaardiga autentimine töötab?
 
-Kui sa logid sisse riigi teenusesse ID-kaardiga:
+```mermaid
+sequenceDiagram
+    participant K as Kasutaja
+    participant B as Brauser
+    participant ID as ID-kaart
+    participant S as Server
+    participant SK as SK OCSP
 
-1. Veebileht küsib sinu brauserilt sertifikaati
-2. Brauser küsib ID-kaardilt (läbi kaardilugeja) sertifikaati
-3. Sina sisestad PIN1 koodi
-4. Kaart annab sertifikaadi ja tõestab, et tal on vastav privaatvõti
-5. Server kontrollib, kas sertifikaat on kehtiv (OCSP päring SK-le)
-6. Kui kõik on korras, oled sisse logitud
-
-See on mTLS (mutual TLS), millest rääkisime varem — mõlemad pooled tõestavad oma identiteeti.
-
-## Mobiil-ID ja Smart-ID
-
-Mobiil-ID kasutab sama põhimõtet, aga privaatvõti on SIM-kaardil, mitte ID-kaardil. Sertifikaadid väljastab SK, lihtsalt teine CA (MID-SK).
-
-Smart-ID on uuem lahendus, kus võtmed on telefoni turvaelementides ja sertifikaadid pilves. See on mugavam (ei vaja erilist SIM-i), aga põhimõte on sama.
-
-Mõlemad on Eestis ja paljudes Euroopa riikides tunnustatud digitaalallkirja vahenditena.
-
-## eIDAS ja Euroopa tunnustamine
-
-Eesti digitaalallkiri on tunnustatud kogu Euroopa Liidus tänu eIDAS määrusele. See Euroopa regulatsioon ütleb, et liikmesriigid peavad tunnustama teiste riikide kvalifitseeritud digitaalallkirju.
-
-SK sertifikaadid on "kvalifitseeritud", mis tähendab, et nad vastavad eIDAS nõuetele. Seega, kui sa allkirjastad Eesti ID-kaardiga lepingu, on see juriidiliselt siduv kogu Euroopas.
-
-Aga praktikas on nüansse. Mõni välismaine teenus ei pruugi Eesti ID-kaarti toetada — mitte sellepärast, et sertifikaat poleks kehtiv, vaid sellepärast, et nende tarkvara lihtsalt ei tea, kuidas Eesti kaarte lugeda. See on tehniline probleem, mitte õiguslik.
-
-## DigiDoc ja allkirjastamine
-
-DigiDoc on Eesti digitaalallkirja formaat ja tarkvara. Kui sa allkirjastad faili DigiDoc-iga, tekib .asice või .bdoc konteiner, mis sisaldab:
-
-- Originaalfaili(d)
-- Sinu digitaalallkirja
-- Ajatemplit (tõestab, millal allkiri tehti)
-- Sertifikaatide ahelat
-
-See konteiner on matemaatiliselt kindel. Kui keegi muudab faili pärast allkirjastamist, muutub allkiri kehtetuks. Kui keegi üritab võltsida ajatemplit, on see tuvastatav.
-
-DigiDoc4 klient on tasuta tarkvara, mida võid alla laadida id.ee lehelt. See töötab Windowsis, Macis ja Linuxis.
-
-## Kuidas ise SK sertifikaate kasutada?
-
-Kui sa arendad tarkvara, mis peab Eesti ID-kaarti toetama, pead sa teadma mõningaid asju.
-
-**Usaldusahel** — sinu tarkvara peab usaldama SK juursertifikaate. Need on alla laetavad SK veebilehelt (sk.ee). Pead need lisama oma truststoresse.
-
-**OCSP kontroll** — sinu tarkvara peaks kontrollima, kas sertifikaat on kehtiv, mitte ainult kas see pole aegunud. SK pakub OCSP teenust. See on oluline, sest kui inimene kaotab ID-kaardi, tühistatakse sertifikaat — ja sinu tarkvara peab seda teadma.
-
-**Kaardilugeja tugi** — kui tahad, et kasutajad saaksid sinu veebilehele ID-kaardiga sisse logida, pead implementeerima WebCrypto või kasutama mõnda olemasolevat teeki. See on tehniliselt keeruline — lihtsam on kasutada olemasolevaid lahendusi nagu TARA (Riigi Autentimisteenuse).
-
-## TARA — Riigi Autentimisteenuse
-
-Kui sa ei taha ise ID-kaardi, Mobiil-ID ja Smart-ID tuge implementeerida, on TARA (Riigi Autentimisteenuse) sinu sõber.
-
-TARA on RIA (Riigi Infosüsteemi Ameti) teenus, mis pakub autentimist-kui-teenust. Sinu rakendus suunab kasutaja TARA lehele, kasutaja valib autentimisviisi (ID-kaart, Mobiil-ID, Smart-ID, pangalink), autentib end, ja TARA saadab sinu rakendusele tagasi info kasutaja kohta.
-
-See on OpenID Connect protokollil põhinev — standardne, hästi dokumenteeritud, lihtne implementeerida. Enamik Eesti avaliku sektori veebiteenuseid kasutab TARA-t.
-
-Erasektori jaoks on alternatiiviks Dokobit, SK ise, või teised teenusepakkujad, kes pakuvad sarnast autentimine-kui-teenust äriklientidele.
-
-## Praktiline näide: sertifikaadi kontrollimine
-
-Kui sul on ID-kaart ja kaardilugeja, saad oma sertifikaate vaadata:
-
-```bash
-# MacOS/Linux - loe sertifikaate kaardilt
-pkcs11-tool -L  # näita saadaolevaid slotte
-
-# Või kasuta DigiDoc4 klienti - seal on visuaalne liides
+    S->>B: Küsi kliendi sertifikaati
+    B->>ID: Küsi sertifikaati
+    K->>ID: Sisesta PIN1
+    ID->>B: Sertifikaat + privaatvõtme tõestus
+    B->>S: Sertifikaat
+    S->>SK: Kas sertifikaat kehtib?
+    SK->>S: Kehtib!
+    S->>B: Sisse logitud
 ```
 
-Eesti ID-kaardi sertifikaate saab vaadata ka veebis: mine id.ee lehele ja kontrolli oma kaardi staatust.
+*Joonis 13.2. ID-kaardiga autentimise protsess*
+
+See on mTLS (mutual TLS) - mõlemad pooled tõestavad oma identiteeti.
+
+## Autentimisvahendite võrdlus
+
+| Vahend | Võti asub | Vajab | Turvalisus |
+|--------|-----------|-------|------------|
+| **ID-kaart** | Kaardi kiip | Kaardilugeja + PIN | Kõrgeim |
+| **Mobiil-ID** | SIM-kaart | Eriline SIM + PIN | Kõrge |
+| **Smart-ID** | Telefoni turvaelement | Äpp + PIN | Kõrge |
+
+*Tabel 13.2. Autentimisvahendite võrdlus*
+
+Kõik kolm on eIDAS[^eidas] määruse järgi kvalifitseeritud ja tunnustatud kogu Euroopa Liidus.
+
+Rohkem: [id.ee](https://www.id.ee) ja [SK ID Solutions](https://www.sk.ee)
+
+## DigiDoc allkirjastamine
+
+DigiDoc4 klient loob .asice konteineri, mis sisaldab originaalfaile, digitaalallkirja, ajatemplit ja sertifikaatide ahelat. Kui keegi muudab faili pärast allkirjastamist, muutub allkiri kehtetuks.
+
+Tarkvara on tasuta: [id.ee/artikkel/installi-id-tarkvara](https://www.id.ee/artikkel/installi-id-tarkvara/)
+
+## TARA - autentimine-kui-teenus
+
+Kui arendad tarkvara ja ei taha ise ID-kaardi, Mobiil-ID ja Smart-ID tuge implementeerida, kasuta TARA-t.[^tara]
+
+```mermaid
+flowchart LR
+    APP["Sinu rakendus"] -->|suunab kasutaja| TARA["TARA<br/><i>RIA teenus</i>"]
+    TARA -->|valib viisi| AUTH{"ID-kaart<br/>Mobiil-ID<br/>Smart-ID<br/>Pangalink"}
+    AUTH -->|autendib| TARA
+    TARA -->|tagastab info| APP
+
+    style TARA fill:#5e35b1,color:#fff
+```
+
+*Joonis 13.3. TARA autentimisteenus*
+
+TARA on OpenID Connect protokollil põhinev - standardne ja lihtne integreerida. Enamik Eesti avaliku sektori teenuseid kasutab seda.
+
+Dokumentatsioon: [e-gov.github.io/TARA-Doku](https://e-gov.github.io/TARA-Doku/)
+
+Erasektori alternatiivid: Dokobit, SK autentimisteenus.
 
 ## SK sertifikaatide usaldamine oma serveris
 
-Kui sa tahad, et sinu server usaldaks Eesti ID-kaarte:
+Kui sinu server peab usaldama Eesti ID-kaarte:
 
 ```bash
 # Lae alla SK juursertifikaadid
 wget https://www.sk.ee/upload/files/EE_Certification_Centre_Root_CA.pem.crt
 
-# Lisa oma truststoresse
-# Linux:
+# Linux truststoresse
 sudo cp EE_Certification_Centre_Root_CA.pem.crt /usr/local/share/ca-certificates/
 sudo update-ca-certificates
+```
 
-# Või Java jaoks:
-keytool -importcert -alias sk-root -file EE_Certification_Centre_Root_CA.pem.crt \
+```bash
+# Java truststoresse
+keytool -importcert -alias sk-root \
+    -file EE_Certification_Centre_Root_CA.pem.crt \
     -keystore truststore.jks -storepass changeit
 ```
 
+Oluline on ka OCSP kontrolli implementeerimine - kui inimene kaotab ID-kaardi, tühistatakse sertifikaat ja sinu tarkvara peab seda teadma.
+
 ## Kokkuvõte
 
-Eesti PKI on üks maailma arenenumaid. ID-kaart, Mobiil-ID ja Smart-ID põhinevad samadel põhimõtetel, mida see kursus õpetab — avaliku võtme krüptograafia, sertifikaadid, CA-d, usaldusahelad.
+| Komponent | Mis see on | Haldab | Rohkem |
+|-----------|-----------|--------|--------|
+| ID-kaart | Krüptokiibiga kaart | PPA + SK | [id.ee](https://www.id.ee) |
+| Mobiil-ID | SIM-põhine identiteet | Operaatorid + SK | [sk.ee](https://www.sk.ee) |
+| Smart-ID | Telefonipõhine identiteet | SK | [smart-id.com](https://www.smart-id.com) |
+| TARA | Autentimine-kui-teenus | RIA | [TARA docs](https://e-gov.github.io/TARA-Doku/) |
+| DigiDoc | Allkirjastamise tarkvara | RIA | [id.ee](https://www.id.ee) |
+| SK | Sertifitseerimisasutus | Eraettevõte | [sk.ee](https://www.sk.ee) |
 
-Kui sa mõistad, kuidas TLS ja PKI töötavad, mõistad sa ka, kuidas Eesti digitaalne identiteet töötab. See pole mingi Eesti-spetsiifiline maagia — see on sama matemaatika ja samad protokollid, lihtsalt hästi implementeeritud ja laialt kasutusele võetud.
+*Tabel 13.3. Eesti PKI komponendid*
 
-| Komponent | Mis see on | Kes haldab |
-|-----------|-----------|------------|
-| ID-kaart | Füüsiline kaart krüptokiibiga | PPA, SK sertifikaadid |
-| Mobiil-ID | SIM-kaardil põhinev identiteet | Mobiilioperaatorid, SK |
-| Smart-ID | Telefoni põhinev identiteet | SK |
-| TARA | Autentimine-kui-teenus | RIA |
-| DigiDoc | Allkirjastamise tarkvara ja formaat | RIA |
-| SK | Sertifitseerimisasutus | Eraettevõte |
+Eesti PKI pole mingi eriline maagia - see on sama matemaatika ja samad protokollid, mida kogu see kursus õpetab. Lihtsalt hästi implementeeritud ja laialt kasutusele võetud.
 
-Järgmises osas vaatame tulevikku — kvantarvutid ja post-quantum krüptograafia.
+---
+
+## Enesekontroll
+
+??? question "1. Mis on SK ID Solutions ja millist rolli see Eesti PKI-s täidab?"
+    SK on erasektori sertifitseerimisasutus, mis väljastab sertifikaate ID-kaartidele, Mobiil-ID-le ja Smart-ID-le. SK juursertifikaadid on Eesti riigi ja Euroopa riikide süsteemides tunnustatud.
+
+??? question "2. Mis kaks sertifikaati on Eesti ID-kaardil?"
+    Autentimissertifikaat (isiku tõestamiseks, PIN1) ja allkirjastamissertifikaat (digitaalallkirjadeks, PIN2). Mõlemad on seotud isikukoodiga. Privaatvõtmed on kaardi kiibis ja ei lahku sealt.
+
+??? question "3. Mis on TARA ja miks seda kasutada?"
+    TARA on RIA autentimine-kui-teenus. Toetab ID-kaarti, Mobiil-ID-d, Smart-ID-d ja pangalinke. Põhineb OpenID Connect protokollil. Lihtsam kui ise kõigi autentimisvahendite tuge implementeerida.
+
+[^sk]: SK ID Solutions AS. *Sertifitseerimisteenused*. https://www.sk.ee
+[^tara]: Riigi Infosüsteemi Amet. *TARA autentimisteenus*. https://e-gov.github.io/TARA-Doku/
+[^idee]: ID.ee. *ID-kaardi tarkvara ja dokumentatsioon*. https://www.id.ee
+[^eidas]: Euroopa Parlament ja Nõukogu. (2014). *Määrus (EL) nr 910/2014 (eIDAS)*. https://eur-lex.europa.eu/legal-content/ET/TXT/?uri=CELEX%3A32014R0910

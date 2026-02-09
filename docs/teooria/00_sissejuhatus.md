@@ -1,50 +1,74 @@
-# Sissejuhatus: Miks see kõik oluline on?
+---
+tags:
+  - TLS
+---
 
-![Kuidas HTTPS sinu andmeid kaitseb](../assets/https_kaitseb.png)
+# Sissejuhatus
 
-## Miks sa peaksid hoolikama?
+## Miks see kursus?
 
-Iga kord, kui sa avad pangalehe, ostad midagi internetist või saadad privaatset sõnumit, usaldad sa süsteemi, mida enamik inimesi ei mõista. See süsteem kaitseb sind — sinu paroole, sinu raha, sinu privaatsust. Aga kui sa ei tea, kuidas see töötab, ei oska sa ka aru saada, kui midagi on valesti.
+Iga kord, kui sa avad veebilehe, kontrollid pangakontot või saadad sõnumi, toimub taustal krüptograafiline tants. Sinu brauser ja server lepivad kokku saladuses, mida keegi teine ei tea. See kursus näitab, kuidas see kõik töötab.
 
-Kujuta ette, et istud kohvikus ja kasutad tasuta WiFi-t. Sa logid sisse oma e-postkasti. Kas keegi saab su parooli näha? Vastus sõltub sellest, kas ühendus on krüpteeritud. Kui on — näeb pealtvaataja ainult mõttetut sodi. Kui pole — näeb ta kõike.
+Kursus on mõeldud IT-süsteemide nooremspetsialistidele ja teistele IT-valdkonna õppijatele, kes puutuvad kokku sertifikaadihalduse, HTTPS-i ja turvalise võrguühenduse seadistamisega.
 
-See kursus õpetab sulle, kuidas kogu see süsteem töötab. Mitte pinnapealselt, vaid päriselt — kuidas võtmed luuakse, kuidas sertifikaadid väljastatakse, kuidas brauser otsustab, keda usaldada. Sa õpid looma oma sertifikaate, seadistama turvalisi servereid ja lahendama probleeme, kui midagi läheb valesti.
-
-## Kellele see kursus on mõeldud?
-
-See kursus sobib sulle, kui:
-
-- Sa oled algaja, kes tahab aru saada, kuidas interneti turvalisus töötab
-- Sa oled arendaja, kes puutub kokku HTTPS-i ja sertifikaatidega
-- Sa oled DevOps insener, kes seadistab ja haldab TLS-i
-- Sa lihtsalt tahad teada, mida see lukuikoon brauseris tegelikult tähendab
-
-Eelnevaid süvateadmisi pole vaja. Alustame algusest ja liigume samm-sammult keerulisemate teemade poole.
+---
 
 ## Mida sa õpid?
 
-Kursus koosneb teoreetilistest osadest ja praktilistest laboritest.
+```mermaid
+flowchart LR
+    A["Põhitõed<br/><i>Osad 1-4</i>"] --> B["Haldus<br/><i>Osad 5-9</i>"]
+    B --> C["Edasijõudnud<br/><i>Osad 10-13</i>"]
+    C --> D["Praktikumid<br/><i>1-4</i>"]
 
-**Teooria osades** saad teada:
-- Mis on SSL, TLS ja HTTPS ning kuidas need sündisid
-- Kuidas avaliku võtme krüptograafia töötab
-- Mis on sertifikaadid ja sertifitseerimisasutused
-- Kuidas TLS käepigistus toimub
-- Kuidas sertifikaate hallata, automatiseerida ja probleeme lahendada
-- Kuidas see kõik Eestis töötab — ID-kaart, Mobiil-ID, SK
-- Mis on post-quantum krüptograafia ja miks see oluline on
+    style A fill:#5e35b1,color:#fff
+    style B fill:#5e35b1,color:#fff
+    style C fill:#5e35b1,color:#fff
+    style D fill:#ff9100,color:#fff
+```
 
-**Praktilistes laborites** teed sa:
-- Lood oma sertifitseerimisasutuse
-- Genereerid ja analüüsid sertifikaate
-- Seadistad HTTPS servereid
-- Kasutad HashiCorp Vault'i automaatseks sertifikaadihalduseks
-- Katsetad post-quantum algoritme
+*Joonis 0.1. Kursuse ülesehitus ja läbimise järjekord*
+
+
+| Plokk | Teemad |
+|-------|--------|
+| **Põhitõed** (1-4) | SSL/TLS/HTTPS, PKI, käepigistus, sertifikaadid |
+| **Haldus** (5-9) | Failivormingud, keystore/truststore, elutsükkel, automatiseerimine |
+| **Edasijõudnud** (10-13) | Probleemide lahendamine, mTLS, PQC, Eesti PKI |
+| **Praktikumid** (1-4) | CA loomine, sertifikaadi analüüs, Vault, post-quantum |
+
+---
+
+## Tööriistad
+
+Selles kursuses kasutame peamiselt **OpenSSL** ja **bash** terminali käske.
+
+OpenSSL on avatud lähtekoodiga krüptograafiatööriist, mida võib nimetada krüptograafia Šveitsi armeenugaks — sellega saab genereerida võtmeid, luua sertifikaate, testida ühendusi ja palju muud. See on eelinstallitud peaaegu igas Linuxi ja macOS süsteemis.
+
+Lisaks OpenSSL-ile kasutame kursuses ka `curl` (HTTP päringud), `docker` (Vault ja OQS keskkonnad) ning `keytool` (Java keystore/truststore).
+
+Kõiki tööriistu õpid kasutama praktikumides — seal on käsud koos selgitustega samm-sammult läbi tehtud. Käskude kiireks meeldetuletuseks on olemas ka [Spikker](../spikker.md).
+
+---
 
 ## Kuidas kursust läbida?
 
-Soovitan alustada Osast 1 ja liikuda järjest edasi. Iga osa ehitab eelmisele peale. Laborid on mõeldud tegema pärast vastava teooria lugemist — näiteks Labor 1 pärast Osi 1-5.
+1. **Loe teooria läbi** - iga osa lõpus on enesekontrolli küsimused
+2. **Tee praktikumid** - need kinnistavad teooriat päris käskudega
+3. **Kasuta spikrit** - kõik olulised käsud on ühes kohas
 
-Aga kui sul on juba kogemust ja tahad konkreetset teemat, võid ka otse sinna hüpata. Iga osa on piisavalt iseseisev.
+!!! tip "Soovitus"
+    Ära proovi kõike korraga selgeks saada. Alusta põhitõdedest, tee esimene praktikum ära, ja liigu edasi siis, kui tunned end kindlalt.
 
-Alustame sellest, kuidas see kõik alguse sai — Netscape'i inseneridest, kes 1990ndatel otsustasid interneti turvalisemaks teha.
+---
+
+## Enesekontroll
+
+??? question "1. Miks on selles kursuses vaja Linuxi käsurida?"
+    Sertifikaatide loomine, haldamine ja tõrkeotsing toimub käsureal — graafilised tööriistad peidavad olulisi detaile. Serverid, kus sertifikaate paigaldatakse, on enamasti Linuxi-põhised ja ligipääs on ainult terminali kaudu.
+
+??? question "2. Miks on kursus jagatud kolme plokki (põhitõed → haldus → edasijõudnud)?"
+    Iga plokk ehitab eelmisele peale. Ilma põhitõdedeta (mis on sertifikaat, kuidas TLS töötab) ei saa aru haldusest (kuidas sertifikaate hallata). Edasijõudnud teemad (tõrkeotsing, PQC) eeldavad mõlema eelneva mõistmist.
+
+??? question "3. Kujuta ette, et kolleeg küsib: 'Miks ma pean sertifikaatidest midagi teadma, see on ju admini töö?' Mida sa vastaksid?"
+    Sertifikaadid puudutavad kõiki IT-rolle: arendaja peab teadma, miks HTTPS ei tööta tema testserveris; DevOps peab automatiseerima uuendusi; turvaspetsialist peab auditeerima. Aegunud sertifikaat võib kogu teenuse maha võtta — see pole ainult admini probleem.

@@ -26,3 +26,4 @@ Thumbs.db
 .env
 *.key
 *.pem
+FORMATTING_POLICY.md

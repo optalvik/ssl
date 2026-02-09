@@ -1,47 +1,41 @@
-# Labor 3 - HashiCorp Vault PKI seadistamine Dockeriga
+---
+tags:
+  - Praktikum
+  - Automatiseerimine
+---
 
-## Mida me siin teeme?
+# Praktikum 3 - HashiCorp Vault PKI seadistamine Dockeriga
 
-Selles laboris ehitame üles päris sertifitseerimisasutuse kasutades HashiCorp Vault'i. See pole mingi mänguasi — Vault on tööriist, mida kasutavad suured ettevõtted oma sisemiste sertifikaatide haldamiseks. Aga me teeme seda Dockeriga, nii et sa ei pea midagi püsivalt oma arvutisse installima.
+## Mida me teeme
 
-Labori lõpuks oskad sa:
-- Käivitada Vault'i Dockeris
-- Seadistada Vault'i sertifikaate väljastama
-- Luua ja kasutada sertifikaate päris HTTPS serveri jaoks
-- Mõista, miks automaatne sertifikaadihaldus on parem kui käsitsi tegemine
+Selles praktikumis ehitame üles sertifitseerimisasutuse kasutades HashiCorp Vault'i. Vault on tööriist, mida kasutavad suured ettevõtted sisemiste sertifikaatide haldamiseks. Me teeme seda Dockeriga, nii et midagi ei jää püsivalt arvutisse.
 
-## Miks Vault, mitte lihtsalt OpenSSL?
+**Miks Vault, mitte OpenSSL?** Eelmistes praktikumides tegime sertifikaate käsitsi. See töötab, aga saja serveri puhul on käsitsi haldamine tee hukatusse. Vault annab sertifikaadi ühe API kutsega - automaatselt, turvaliselt, logitult.
 
-Eelmistes laborites tegime sertifikaate OpenSSL-iga käsitsi. See töötab, aga kujuta ette, et sul on sada serverit. Iga kord, kui sertifikaat aegub, pead sa käsitsi uue tegema, selle õigesse kohta kopeerima, serveri taaskäivitama. Üks unustatud sertifikaat ja teenus on maas.
-
-Vault lahendab selle probleemi. Sa ütled Vault'ile "anna mulle sertifikaat serveri X jaoks" ja Vault annab. Automaatselt, turvaliselt, logitult. Kui sertifikaat aegub, küsid lihtsalt uue. Pole faile, mida kaduma kaotada, pole käsitsi kopeerimist.
-
-See on nagu vahe selle vahel, kas sa käid iga kord passibüroos passi uuendamas või on sul automaatne süsteem, mis saadab uue passi koju enne kui vana aegub.
+**Vajad:** Docker, terminali.
 
 ---
 
 ## Osa 1: Vault'i käivitamine
 
-### Eeldused
-
-Sul peab olema Docker installitud. Kontrolli:
+### Samm 1: Kontrolli Dockerit
 
 ```bash
 docker --version
 ```
 
-Kui Docker puudub, installi see esmalt oma operatsioonisüsteemi juhiste järgi.
+Kui Docker puudub, installi see esmalt.
 
-### Docker Compose fail
-
-Loo endale töökataloog ja sinna fail nimega `docker-compose.yml`:
+### Samm 2: Loo töökataloog
 
 ```bash
 mkdir -p ~/vault-labor
 cd ~/vault-labor
 ```
 
-Loo fail `docker-compose.yml` järgmise sisuga:
+### Samm 3: Loo Docker Compose fail
+
+Loo fail `docker-compose.yml`:
 
 ```yaml
 version: '3.8'
@@ -60,76 +54,67 @@ services:
     command: "server -dev"
 ```
 
-See fail ütleb Dockerile: käivita Vault arendusrežiimis, kuula pordil 8200, kasuta "root" kui autentimise tokenit. Arendusrežiim tähendab, et Vault käivitub kohe ilma keerulise seadistamiseta — päris tootmises sa seda ei kasutaks, aga õppimiseks on ideaalne.
+Mida see teeb: käivitab Vault'i arendusrežiimis pordil 8200, kasutab `root` kui autentimise tokenit. Arendusrežiim tähendab kiire käivitus ilma keerulise seadistamiseta - päris tootmises nii ei tee.
 
-### Käivitamine
+### Samm 4: Käivita
 
 ```bash
 docker-compose up -d
-```
-
-`-d` tähendab "detached" — Vault jookseb taustal ja sa saad terminali edasi kasutada.
-
-Kontrolli, kas töötab:
-
-```bash
 docker ps
 ```
 
-Peaksid nägema vault konteinerit jooksmas.
+`-d` tähendab "detached" - Vault jookseb taustal. `docker ps` näitab, kas konteiner töötab.
 
 ---
 
 ## Osa 2: Vault CLI seadistamine
 
-Vault'iga suhtlemiseks vajad käsurea tööriista. Selle saad installida:
+### Samm 1: Installi Vault CLI
 
-Ubuntu/Debian:
-```bash
-wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-sudo apt update && sudo apt install vault
-```
+=== "Ubuntu/Debian"
 
-macOS:
-```bash
-brew install vault
-```
+    ```bash
+    wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+    echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+    sudo apt update && sudo apt install vault
+    ```
 
-Seadista keskkond:
+=== "macOS"
+
+    ```bash
+    brew install vault
+    ```
+
+### Samm 2: Seadista ühendus
 
 ```bash
 export VAULT_ADDR='http://127.0.0.1:8200'
 export VAULT_TOKEN='root'
 ```
 
-Need käsud ütlevad Vault CLI-le, kuhu ühenduda ja millise tokeniga autentida.
+Need keskkonnamuutujad ütlevad Vault CLI-le, kuhu ja millise tokeniga ühenduda.
 
-Kontrolli ühendust:
+### Samm 3: Kontrolli
 
 ```bash
 vault status
 ```
 
-Kui näed infot Vault'i oleku kohta, oled ühendatud.
+Kui näed Vault'i olekuinfot, oled ühendatud.
 
 ---
 
 ## Osa 3: PKI mootori seadistamine
 
-Vault on modulaarne — ta koosneb "mootoritest", mis teevad erinevaid asju. PKI mootor tegeleb sertifikaatidega.
+Vault on modulaarne - PKI mootor tegeleb sertifikaatidega.
 
-### PKI lubamine
+### Samm 1: Luba PKI
 
 ```bash
 vault secrets enable pki
 ```
 
-See käsk ütleb Vault'ile: luba PKI mootor vaikimisi teel (`pki/`).
-
-### Juur-CA loomine
-
-Nüüd loome oma sertifitseerimisasutuse. See on see "valitsus", kes hakkab passe väljastama:
+### Samm 2: Loo juur-CA
 
 ```bash
 vault write pki/root/generate/internal \
@@ -137,13 +122,11 @@ vault write pki/root/generate/internal \
     ttl=87600h
 ```
 
-`ttl=87600h` on 10 aastat — nii kaua kehtib meie juur-CA. Päris elus oleks see võib-olla veel pikem.
+`ttl=87600h` on 10 aastat. Vault vastab juur-CA sertifikaadiga.
 
-Vault vastab sulle juur-CA sertifikaadiga. See on see dokument, mida teised peavad usaldama, et usaldada kõiki selle CA poolt väljastatud sertifikaate.
+### Samm 3: Seadista URL-id
 
-### URL-ide seadistamine
-
-Sertifikaatidesse kirjutatakse URL-id, kust saab kontrollida, kas sertifikaat on tühistatud:
+Sertifikaatidesse kirjutatakse URL-id, kust saab kontrollida tühistamist:
 
 ```bash
 vault write pki/config/urls \
@@ -155,7 +138,7 @@ vault write pki/config/urls \
 
 ## Osa 4: Rolli loomine
 
-Vault'is määravad "rollid", kes mida teha tohib. Me loome rolli, mis lubab väljastada sertifikaate domeenile `labor.local` ja selle alamdomeenidele:
+Rollid määravad, kes mida teha tohib.
 
 ```bash
 vault write pki/roles/veebiserver \
@@ -164,95 +147,78 @@ vault write pki/roles/veebiserver \
     max_ttl="72h"
 ```
 
-See ütleb: roll nimega "veebiserver" tohib väljastada sertifikaate `labor.local`, `www.labor.local`, `api.labor.local` jne jaoks. Sertifikaadid kehtivad maksimaalselt 72 tundi.
-
-Miks nii lühike aeg? Sest lühiajalised sertifikaadid on turvalisemad. Kui võti lekib, on kahju piiratud. Ja kui sul on automaatne süsteem, mis uuendab sertifikaate, pole pikk kehtivusaeg vaja.
+See lubab väljastada sertifikaate `labor.local`, `www.labor.local`, `api.labor.local` jne jaoks. Maksimaalne kehtivus 72h - lühiajalised sertifikaadid on turvalisemad, sest lekkinud võtme kahju on piiratud.
 
 ---
 
 ## Osa 5: Sertifikaadi väljastamine
 
-Nüüd küsime Vault'ilt sertifikaadi:
-
-```bash
-vault write pki/issue/veebiserver \
-    common_name="test.labor.local" \
-    ttl="24h"
-```
-
-Vault vastab JSON-iga, mis sisaldab:
-- `certificate` — sinu sertifikaat
-- `private_key` — sinu privaatvõti
-- `ca_chain` — CA sertifikaat
-
-### Failidesse salvestamine
-
-Et sertifikaate kasutada, salvesta need failidesse:
+### Samm 1: Küsi sertifikaati
 
 ```bash
 vault write -format=json pki/issue/veebiserver \
     common_name="test.labor.local" \
     ttl="24h" > sertifikaat.json
+```
 
+Vault vastab JSON-iga, mis sisaldab sertifikaati, privaatvõtit ja CA ahelat.
+
+### Samm 2: Eralda failidesse
+
+```bash
 cat sertifikaat.json | jq -r '.data.private_key' > server.key
 cat sertifikaat.json | jq -r '.data.certificate' > server.crt
 cat sertifikaat.json | jq -r '.data.ca_chain[0]' > ca.crt
 ```
 
-Nüüd on sul kolm faili: privaatvõti, sertifikaat ja CA sertifikaat.
+`jq` on JSON töötlemise tööriist. `-r` annab "raw" väljundi ilma jutumärkideta.
 
 ---
 
 ## Osa 6: HTTPS serveri testimine
 
-Loome lihtsa veebilehe ja käivitame HTTPS serveri:
+### Samm 1: Loo veebileht
 
 ```bash
-echo "<h1>Tere tulemast turvalisele lehele!</h1><p>See sertifikaat tuli Vault'ist.</p>" > index.html
+echo "<h1>Tere tulemast!</h1><p>Sertifikaat Vault'ist.</p>" > index.html
 ```
 
-Käivita server (vajab Python 3):
+### Samm 2: Käivita HTTPS server
 
 ```bash
-python3 << 'EOF'
-import http.server
-import ssl
-
+python3 -c "
+import http.server, ssl
 server = http.server.HTTPServer(('0.0.0.0', 4443), http.server.SimpleHTTPRequestHandler)
-context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-context.load_cert_chain('server.crt', 'server.key')
-server.socket = context.wrap_socket(server.socket, server_side=True)
-print("Server käivitatud: https://localhost:4443")
+ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+ctx.load_cert_chain('server.crt', 'server.key')
+server.socket = ctx.wrap_socket(server.socket, server_side=True)
+print('Server: https://localhost:4443')
 server.serve_forever()
-EOF
+"
 ```
 
-### Testimine
-
-Teises terminalis:
+### Samm 3: Testi (teises terminalis)
 
 ```bash
 curl --cacert ca.crt https://localhost:4443
 ```
 
-`--cacert ca.crt` ütleb curl'ile, et ta usaldaks meie CA-d. Ilma selleta saaksid hoiatuse, sest meie CA pole avalikult usaldatud.
-
-Kui näed HTML vastust, töötab kõik!
+Kui näed HTML vastust, töötab!
 
 ---
 
-## Osa 7: Vahe-CA loomine (tootmise parim praktika)
+## Osa 7: Vahe-CA loomine
 
-Päris tootmises ei kasutata juur-CA-d otse sertifikaatide väljastamiseks. Selle asemel luuakse vahe-CA (intermediate CA). Kui vahe-CA kompromiteeritakse, saab selle tühistada ilma juur-CA-d puutumata.
+Päris tootmises ei kasutata juur-CA-d otse. Vahe-CA (intermediate CA) lisab turvakihi - kui see kompromiteeritakse, saab selle tühistada ilma juur-CA-d puutumata.
 
-### Vahe-PKI lubamine
+### Samm 1: Luba vahe-PKI
 
 ```bash
 vault secrets enable -path=pki_int pki
 vault secrets tune -max-lease-ttl=43800h pki_int
 ```
 
-### Vahe-CA taotluse loomine
+### Samm 2: Loo vahe-CA taotlus
 
 ```bash
 vault write -format=json pki_int/intermediate/generate/internal \
@@ -260,7 +226,7 @@ vault write -format=json pki_int/intermediate/generate/internal \
     | jq -r '.data.csr' > vahe_ca.csr
 ```
 
-### Juur-CA allkirjastab vahe-CA
+### Samm 3: Juur-CA allkirjastab vahe-CA
 
 ```bash
 vault write -format=json pki/root/sign-intermediate \
@@ -270,24 +236,25 @@ vault write -format=json pki/root/sign-intermediate \
     | jq -r '.data.certificate' > vahe_ca.crt
 ```
 
-### Vahe-CA sertifikaadi importimine
+`@vahe_ca.csr` tähendab "loe sisu failist".
+
+### Samm 4: Impordi vahe-CA
 
 ```bash
 vault write pki_int/intermediate/set-signed certificate=@vahe_ca.crt
 ```
 
-Nüüd on sul kaheastmeline CA hierarhia. Sertifikaate väljastaksid `pki_int` teelt, mitte `pki` teelt.
+Nüüd on kaheastmeline CA hierarhia. Sertifikaate väljastaksid `pki_int` teelt.
 
 ---
 
 ## Osa 8: Automaatne uuendamine
 
-Vault'i võlu on automaatne uuendamine. Siin on näide skriptist, mis uuendab sertifikaati:
+Vault'i võlu on automaatne uuendamine. Loo skript:
 
 ```bash
+cat > uuenda.sh << 'SKRIPT'
 #!/bin/bash
-# uuenda_sertifikaat.sh
-
 export VAULT_ADDR='http://127.0.0.1:8200'
 export VAULT_TOKEN='root'
 
@@ -299,53 +266,39 @@ cat sertifikaat.json | jq -r '.data.private_key' > server.key
 cat sertifikaat.json | jq -r '.data.certificate' > server.crt
 
 echo "Sertifikaat uuendatud: $(date)"
+# Päris elus: systemctl reload nginx
+SKRIPT
 
-# Siin võiks olla käsk teenuse taaskäivitamiseks
-# systemctl reload nginx
+chmod +x uuenda.sh
 ```
 
-Selle skripti võid lisada cron'i, et see jookseks iga päev:
+Croniga ajastamiseks:
 
-```bash
-0 3 * * * /home/kasutaja/vault-labor/uuenda_sertifikaat.sh
+```
+0 3 * * * /home/kasutaja/vault-labor/uuenda.sh
 ```
 
 ---
 
 ## Osa 9: Puhastamine
 
-Kui labor on läbi:
-
 ```bash
 cd ~/vault-labor
 docker-compose down
 rm -f server.key server.crt ca.crt sertifikaat.json index.html
-rm -f vahe_ca.csr vahe_ca.crt
+rm -f vahe_ca.csr vahe_ca.crt uuenda.sh
 ```
 
 ---
 
 ## Kokkuvõte
 
-Selles laboris õppisid:
-
-| Teema | Mida tegid |
-|-------|------------|
-| Vault käivitamine | Docker Compose'iga arendusrežiimis |
-| PKI seadistamine | Juur-CA ja rollide loomine |
-| Sertifikaadi väljastamine | API kaudu automaatselt |
-| HTTPS server | Vault'i sertifikaadiga töötav server |
-| Vahe-CA | Tootmise parim praktika |
-| Automaatne uuendamine | Skript sertifikaatide uuendamiseks |
-
-Vault vs käsitsi OpenSSL:
-
 | Aspekt | OpenSSL käsitsi | Vault |
 |--------|-----------------|-------|
-| Sertifikaadi loomine | Mitu käsku, faile | Üks API kutse |
+| Sertifikaadi loomine | Mitu käsku, mitu faili | Üks API kutse |
 | Võtmete hoidmine | Failid kettal | Vault haldab |
 | Uuendamine | Käsitsi mäletamine | Automaatne |
 | Audit | Puudub | Sisseehitatud |
 | Ligipääsukontroll | Failiõigused | Poliitikad |
 
-See on põhjus, miks suured organisatsioonid kasutavad Vault'i — mitte sellepärast, et OpenSSL ei tööta, vaid sellepärast, et sajad sertifikaadid sajal serveril vajavad automatiseerimist.
+See on põhjus, miks suured organisatsioonid kasutavad Vault'i - sajad sertifikaadid sajal serveril vajavad automatiseerimist.

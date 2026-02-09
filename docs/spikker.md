@@ -148,7 +148,7 @@ vault write pki/revoke serial_number="..."
     Sertifikaadi nimi ei klapi. Kontrolli SAN välja.
 
 !!! failure "Unable to get local issuer certificate"
-    Ahel on katki — vahesertifikaat puudub.
+    Ahel on katki - vahesertifikaat puudub.
 
 !!! failure "Key values mismatch"
     Võti ja sertifikaat ei kuulu kokku. Kontrolli modulus hash'e.

@@ -1,4 +1,9 @@
-# Osa 9 - Automatiseerimise tööriistad
+---
+tags:
+  - Automatiseerimine
+---
+
+# Automatiseerimise tööriistad
 
 ## Käsitsi haldamine ei skaleeru
 
@@ -8,11 +13,11 @@ Kui sul on kümme serverit, hakkab asi keerukaks minema. Iga serveri jaoks erald
 
 Kui sul on sada serverit, on käsitsi haldamine tee hukatusse. Mitte küsimus, kas keegi unustab, vaid millal ja kui palju.
 
-Lahendus: automatiseeri. Las masinad teevad seda, milles nad head on — korduvaid ülesandeid täpselt ja väsimatult.
+Lahendus: automatiseeri. Las masinad teevad seda, milles nad head on - korduvaid ülesandeid täpselt ja väsimatult.
 
 ## Certbot ja ACME protokoll
 
-ACME (Automatic Certificate Management Environment) on protokoll, mis võimaldab automaatset sertifikaatide taotlemist ja uuendamist. Let's Encrypt tegi selle kuulsaks, aga nüüd toetavad seda ka teised CA-d.
+ACME[^acme] (Automatic Certificate Management Environment) on protokoll, mis võimaldab automaatset sertifikaatide taotlemist ja uuendamist. Let's Encrypt[^letsencrypt] tegi selle kuulsaks, aga nüüd toetavad seda ka teised CA-d.
 
 Certbot on kõige levinum ACME klient. Ta räägib Let's Encrypt'iga (või teise ACME-toega CA-ga), tõestab domeeni omandiõigust, saab sertifikaadi ja installib selle.
 
@@ -41,7 +46,7 @@ Pärast esmast seadistust lisab certbot automaatselt croni või systemd timeri, 
 
 Vault on salahalduse tööriist, mis oskab ka sertifikaate väljastada. See on ideaalne sisemiste sertifikaatide jaoks.
 
-Vault PKI secrets engine töötab nii: sa seadistad Vaulti kui CA (või impordid olemasoleva CA), lood rolle, mis määravad, milliste omadustega sertifikaate saab väljastada, ja siis rakendused küsivad Vaultilt sertifikaate API kaudu.
+Vault[^vault] PKI secrets engine töötab nii: sa seadistad Vaulti kui CA (või impordid olemasoleva CA), lood rolle, mis määravad, milliste omadustega sertifikaate saab väljastada, ja siis rakendused küsivad Vaultilt sertifikaate API kaudu.
 
 ```bash
 # Luba PKI secrets engine
@@ -64,11 +69,11 @@ vault write pki/issue/serverid \
     ttl=24h
 ```
 
-Vaulti võlu on selles, et sertifikaadid võivad olla lühiajalised — tunde, mitte päevi. Rakendus küsib iga päev (või iga tund) uue sertifikaadi. Kui võti lekib, on see mõne tunni pärast nagunii kasutu.
+Vaulti võlu on selles, et sertifikaadid võivad olla lühiajalised - tunde, mitte päevi. Rakendus küsib iga päev (või iga tund) uue sertifikaadi. Kui võti lekib, on see mõne tunni pärast nagunii kasutu.
 
 ## Cert-manager Kubernetesis
 
-Kui jooksutad rakendusi Kubernetesis, on cert-manager standard sertifikaatide haldamiseks. Ta jälgib Certificate ressursse ja hoolitseb selle eest, et vastavad sertifikaadid oleksid olemas ja kehtivad.
+Kui jooksutad rakendusi Kubernetesis, on cert-manager[^certmanager] standard sertifikaatide haldamiseks. Ta jälgib Certificate ressursse ja hoolitseb selle eest, et vastavad sertifikaadid oleksid olemas ja kehtivad.
 
 ```yaml
 apiVersion: cert-manager.io/v1
@@ -91,7 +96,7 @@ Sertifikaadid salvestatakse Kubernetese Secretitesse. Podid saavad neid mountida
 
 ## Smallstep
 
-Smallstep on modernne lahendus sisemise CA jaoks. See on lihtsam kui täieõiguslik PKI, aga võimekam kui lihtsalt OpenSSL skriptid.
+Smallstep[^smallstep] on modernne lahendus sisemise CA jaoks. See on lihtsam kui täieõiguslik PKI, aga võimekam kui lihtsalt OpenSSL skriptid.
 
 Step CA on server, mis väljastab sertifikaate. Step CLI on klient, millega sertifikaate küsida. Toetab ACME protokolli, nii et saad kasutada ka Certboti.
 
@@ -164,3 +169,28 @@ Sisemised teenused lihtsamates keskkondades: Smallstep. Kiire alustada, piisaval
 Eksisteerivad süsteemid, kuhu automatiseerimist lisada: Ansible/Puppet + olemasolevad tööriistad. Integreeri sellega, mis juba olemas on.
 
 Järgmises osas vaatame, kuidas TLS probleeme diagnoosida, kui midagi ei tööta.
+
+---
+
+## Kokkuvõte
+
+Certbot + Let’s Encrypt avalike lehtede jaoks, Vault sisemiste sertifikaatide jaoks, cert-manager Kubernetesis. Vali tööriist vastavalt keskkonnale. Monitoori sertifikaate Prometheuse või lihtsa skriptiga. Automaatika on parem kui mälu.
+
+---
+
+## Enesekontroll
+
+??? question "1. Mis vahe on HTTP-01 ja DNS-01 challenge'il ACME-s?"
+    HTTP-01 paneb faili veebiserverisse ja CA kontrollib seda HTTP kaudu. DNS-01 lisab DNS TXT kirje. DNS-01 on vajalik wildcard sertifikaatide jaoks ja töötab ka siis, kui veebiserverit pole veel üles seatud.
+
+??? question "2. Millal kasutada Vault'i vs Let's Encrypt'i?"
+    Let's Encrypt - avalikud veebilehed, tasuta, automaatne. Vault - sisemised teenused, kus on vaja lühiajalisi sertifikaate, tsentraalset haldust ja auditit. Vault on CA, mille üle sul on täielik kontroll.
+
+??? question "3. Mis on cert-manager ja millal seda kasutada?"
+    Cert-manager on Kubernetese standard sertifikaatide haldamiseks. Ta jälgib Certificate ressursse ja uuendab sertifikaate automaatselt. Toetab mitut CA-d: Let's Encrypt, Vault, sisemised CA-d.
+
+[^acme]: Barnes, R. et al. (2019). *Automatic Certificate Management Environment (ACME)*. RFC 8555. https://datatracker.ietf.org/doc/html/rfc8555
+[^letsencrypt]: Let's Encrypt. (2024). *Documentation*. https://letsencrypt.org/docs/
+[^vault]: HashiCorp. *Vault PKI Secrets Engine*. https://developer.hashicorp.com/vault/docs/secrets/pki
+[^smallstep]: Smallstep. *Step CA Documentation*. https://smallstep.com/docs/step-ca/
+[^certmanager]: cert-manager. *Documentation*. https://cert-manager.io/docs/
