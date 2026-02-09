@@ -4,7 +4,7 @@
 
 ## Kursuse info
 
-- **Maht:** 40 akadeemilist tundi
+- **Maht:** ~8 akadeemilist tundi (+ ~4h boonusmaterjale)
 - **Sihtrühm:** IT-süsteemide nooremspetsialisti eriala (tase 4) õppijad
 - **Seos õppekavaga:** Küberturvalisus (8 EKAP), Arvutivõrgud (16 EKAP)
 - **Litsents:** CC BY-SA 4.0
