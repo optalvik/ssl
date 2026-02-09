@@ -43,9 +43,9 @@ Sümmeetriline krüpteerimine (AES) ja räsifunktsioonid jäävad turvaliseks. P
 
 Keegi ei tea täpselt. Eksperdid hindavad **Q-päeva** (päev, mil kvantarvutid murravad praegust krüptograafiat) saabumist **2030-2040** vahele.
 
-<figure markdown="span">
-  ![Ekspertide hinnang krüptograafiliselt olulise kvantarvuti saabumisele](../assets/gri_expert_survey_2023.webp){ loading=lazy }
-  <figcaption>Joonis 12.2. Ekspertide hinnang krüptograafiliselt olulise kvantarvuti saabumise tõenäosusele (Mosca & Piani, 2023). Allikas: Global Risk Institute.</figcaption>
+<figure>
+    <img src="../assets/gri_expert_survey_2023.webp" alt="Ekspertide hinnang krüptograafiliselt olulise kvantarvuti saabumisele" loading="lazy">
+    <figcaption>Joonis 12.2. Ekspertide hinnang krüptograafiliselt olulise kvantarvuti saabumise tõenäosusele (Mosca & Piani, 2023). Allikas: Global Risk Institute.</figcaption>
 </figure>
 
 !!! warning "Kogu nüüd, dekrüpteeri hiljem"
