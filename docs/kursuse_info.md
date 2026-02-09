@@ -74,7 +74,7 @@ Iga teooriaosa lõpus on enesekontrolliküsimused (kokkupandavad), praktikumid s
 
 ## Kuidas kasutada
 
-- **Järjest** — alusta osast 0, tee praktikumid pärast vastavat teooriat
+- **Järjest** — alusta esimesest osast, tee praktikumid pärast vastavat teooriat
 - **Teemapõhiselt** — mine otse vajaliku osa juurde
 - **Spikrina** — kiire meeldetuletus igapäevatöös
 - **Õpetaja juhendamisel** — sobib kontaktõppe toetamiseks
