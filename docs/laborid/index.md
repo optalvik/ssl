@@ -12,8 +12,6 @@ Praktilised harjutused, kus saad ise käed külge panna.
 
 ---
 
-## Praktikumide nimekiri
-
 <div class="grid cards" markdown>
 
 -   :material-shield-lock:{ .lg .middle } **Praktikum 1: Veebiturve**
@@ -54,11 +52,15 @@ Praktilised harjutused, kus saad ise käed külge panna.
 
 ## Eeldused
 
+Enne praktikumi alustamist veendu, et vajalik tarkvara on paigaldatud. Praktikum 1 ja 2 kasutavad põhilisi käsurea tööriistu, praktikum 3 ja 4 nõuavad Docker'it.
+
 | Praktikum | Vajalik tarkvara |
 |-----------|------------------|
 | 1 | OpenSSL, veebiserver (nginx/python) |
 | 2 | OpenSSL, curl, brauser |
 | 3 | Docker, Vault CLI |
 | 4 | Docker, liboqs |
+
+*Tabel P.1. Praktikumide tarkvara eeldused*
 
 
