@@ -44,8 +44,8 @@ Sümmeetriline krüpteerimine (AES) ja räsifunktsioonid jäävad turvaliseks. P
 Keegi ei tea täpselt. Eksperdid hindavad **Q-päeva** (päev, mil kvantarvutid murravad praegust krüptograafiat) saabumist **2030-2040** vahele.
 
 <figure markdown="span">
-![Kvantarvutite arengu ajajoon](https://media.licdn.com/dms/image/v2/D5622AQH_NpK-zOb7cw/feedshare-shrink_800/feedshare-shrink_800/0/1723105913913?e=2147483647&v=beta&t=jyb5C_PSnAHgD42izoBqXaFFnzJnS3sqU76cF4uwDTs){ loading=lazy }
-<figcaption>Joonis 12.2. Kvantarvutite arengu prognoos (LinkedIn, 2024).</figcaption>
+  ![Ekspertide hinnang krüptograafiliselt olulise kvantarvuti saabumisele](../assets/gri_expert_survey_2023.webp){ loading=lazy }
+  <figcaption>Joonis 12.2. Ekspertide hinnang krüptograafiliselt olulise kvantarvuti saabumise tõenäosusele (Mosca & Piani, 2023). Allikas: Global Risk Institute.</figcaption>
 </figure>
 
 !!! warning "Kogu nüüd, dekrüpteeri hiljem"
@@ -159,3 +159,4 @@ Kvantarvutid murravad RSA, ECDSA ja Diffie-Helmani, aga AES ja SHA jäävad turv
 [^nist203]: National Institute of Standards and Technology. (2024). *FIPS 203: Module-Lattice-Based Key-Encapsulation Mechanism Standard (ML-KEM)*. https://csrc.nist.gov/pubs/fips/203/final
 [^nist204]: National Institute of Standards and Technology. (2024). *FIPS 204: Module-Lattice-Based Digital Signature Standard (ML-DSA)*. https://csrc.nist.gov/pubs/fips/204/final
 [^oqs]: Open Quantum Safe Project. https://openquantumsafe.org/
+[^gri2023]: Mosca, M. & Piani, M. (2023). *Quantum Threat Timeline Report 2023*. Global Risk Institute. https://globalriskinstitute.org/publication/2023-quantum-threat-timeline-report/
