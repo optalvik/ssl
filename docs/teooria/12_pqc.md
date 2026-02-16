@@ -13,8 +13,8 @@ Kõik, millest me seni rääkisime - RSA, elliptilised kõverad, Diffie-Hellman 
 Kvantarvutid muudavad seda. 1994. aastal näitas Peter Shor,[^shor] et kvantarvuti suudaks faktoreerida suuri arve eksponentsiaalselt kiiremini. Piisavalt võimas kvantarvuti murrab RSA minutitega.
 
 <figure markdown="span">
-![Post-quantum krüptograafia selgitus](https://www.paloaltonetworks.com/content/dam/pan/en_US/images/cyberpedia/what-is-post-quantum-cryptography-pqc/Post-quantum-cryptography-explained-new.png?imwidth=800){ loading=lazy }
-<figcaption>Joonis 12.1. Post-quantum krüptograafia ülevaade (Palo Alto Networks, 2024).</figcaption>
+  ![Post-quantum krüptograafia ülevaade](https://www.paloaltonetworks.com/content/dam/pan/en_US/images/cyberpedia/what-is-post-quantum-cryptography-pqc/Post-quantum-cryptography-explained-new.png?imwidth=800){ loading=lazy }
+  <figcaption>Joonis 12.1. Post-quantum krüptograafia ülevaade (Palo Alto Networks, 2024).</figcaption>
 </figure>
 
 ## Mida murrab, mida mitte?
@@ -35,7 +35,7 @@ flowchart LR
     style SHA fill:#2e7d32,color:#fff
 ```
 
-*Joonis 12.3. Kvantarvutite mõju krüptoalgoritmidele*
+*Joonis 12.2. Kvantarvutite mõju krüptoalgoritmidele*
 
 Sümmeetriline krüpteerimine (AES) ja räsifunktsioonid jäävad turvaliseks. Probleem on avaliku võtme krüptograafiaga - RSA, ECDSA, ECDH, DSA murduvad kõik.
 
@@ -44,8 +44,9 @@ Sümmeetriline krüpteerimine (AES) ja räsifunktsioonid jäävad turvaliseks. P
 Keegi ei tea täpselt. Eksperdid hindavad **Q-päeva** (päev, mil kvantarvutid murravad praegust krüptograafiat) saabumist **2030-2040** vahele.
 
 <figure markdown="span">
-![Kvantarvutite arengu ajajoon](https://media.licdn.com/dms/image/v2/D5622AQH_NpK-zOb7cw/feedshare-shrink_800/feedshare-shrink_800/0/1723105913913?e=2147483647&v=beta&t=jyb5C_PSnAHgD42izoBqXaFFnzJnS3sqU76cF4uwDTs){ loading=lazy }
-<figcaption>Joonis 12.2. Kvantarvutite arengu prognoos (LinkedIn, 2024).</figcaption>
+  ![Kvantarvutite arengu ajajoon](https://media.licdn.com/dms/image/v2/D5622AQH_NpK-zOb7cw/feedshare-shrink_800/feedshare-shrink_800/0/1723105913913?e=2147483647&v=beta&t=jyb5C_PSnAHgD42izoBqXaFFnzJnS3sqU76cF4uwDTs){ loading=lazy }
+  <figcaption>Joonis 12.3. Kvantarvutite arengu prognoos (LinkedIn, 2024).</figcaption>
+</figure>
 
 !!! warning "Kogu nüüd, dekrüpteeri hiljem"
     Ründajad salvestavad **juba praegu** krüpteeritud liiklust. Kui kvantarvutid saabuvad, saavad nad vana liikluse lahti teha. Andmed, mis peavad jääma saladusse aastakümneteks (meditsiiniandmed, riigisaladused), on juba ohus.
@@ -63,9 +64,7 @@ NIST korraldas aastaid kestnud konkursi ja valis 2024. aastal välja uued standa
 | **SPHINCS+** | SLH-DSA | Allkiri | RSA, ECDSA | Räsifunktsioonid |
 | **FALCON** | FN-DSA | Allkiri | RSA, ECDSA | Võreprobleemid |
 
-*Tabel 12.1. NIST PQC standardid (NIST, 2024)*
-
-[^nist204]
+*Tabel 12.1. NIST PQC standardid (NIST, 2024)*[^nist204]
 
 ## Suuruste võrdlus
 
